@@ -12,6 +12,8 @@ import {
     Zap,
     AlertCircle
 } from 'lucide-react';
+import { getGenerativeModel } from 'firebase/ai';
+import { ai } from '../../lib/firebase';
 
 const GeminiAssistant = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -22,16 +24,6 @@ const GeminiAssistant = () => {
     const [isTyping, setIsTyping] = useState(false);
     const [error, setError] = useState(null);
     const messagesEndRef = useRef(null);
-
-    // Mock response logic
-    const generateResponse = (text) => {
-        const lowerText = text.toLowerCase();
-        if (lowerText.includes('resume')) return "I can certainly help with that! Upload your resume in the 'Resume Optimizer' tab, and I'll analyze it for ATS compatibility and suggest improvements.";
-        if (lowerText.includes('project')) return "How about building a 'Task Management App' with drag-and-drop features, or a 'Weather Dashboard' using a public API? Both are great for your portfolio!";
-        if (lowerText.includes('react')) return "React is all about components. Try explaining 'Props vs State' or 'useEffect' hooks to me to test your knowledge!";
-        if (lowerText.includes('quiz')) return "Sure! Question 1: What is the virtual DOM in React and how does it improve performance?";
-        return "That's an interesting topic! I'm currently in demo mode, but I can help you navigate the Student Hub or give general advice on your career path.";
-    };
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -53,12 +45,39 @@ const GeminiAssistant = () => {
         setMessages(newMessages);
         setIsTyping(true);
 
-        // Simulate network delay
-        setTimeout(() => {
-            const responseText = generateResponse(userMessage);
-            setMessages(prev => [...prev, { role: 'assistant', text: responseText }]);
+        try {
+            // Initialize the GenerativeModel instance
+            const model = getGenerativeModel(ai, { model: 'gemini-1.5-flash', mode: 'prefer_in_cloud' });
+            
+            // Generate full chat history for context
+            const history = newMessages.map(m => `**${m.role === 'user' ? 'User' : 'Assistant'}**: ${m.text}`).join('\n\n');
+            const prompt = `Here is our conversation history:\n${history}\n\nPlease respond to my last message in character as a helpful career mentor. Do not output your own speaker label.`;
+
+            // Setup temporary message in UI for the response
+            setMessages(prev => [...prev, { role: 'assistant', text: '' }]);
+            
+            const result = await model.generateContentStream(prompt);
+            let fullResponse = '';
+            
+            for await (const chunk of result.stream) {
+                const chunkText = chunk.text();
+                fullResponse += chunkText;
+                
+                // Update the last message text as it streams in
+                setMessages(prev => {
+                    const latest = [...prev];
+                    latest[latest.length - 1].text = fullResponse;
+                    return latest;
+                });
+            }
+        } catch (err) {
+            console.error("AI Logic Error:", err);
+            setError("Hmm, I couldn't connect to my brain. Please check your setup.");
+            // Remove the empty message if there was an error
+            setMessages(prev => prev.slice(0, prev.length - 1));
+        } finally {
             setIsTyping(false);
-        }, 1500);
+        }
     };
 
     return (
@@ -99,7 +118,7 @@ const GeminiAssistant = () => {
                                         <div className="flex items-center gap-1.5">
                                             <span className="size-2 rounded-full bg-emerald-400 animate-pulse"></span>
                                             <span className="text-xs font-medium text-blue-100">
-                                                Online • Demo Mode
+                                                Online
                                             </span>
                                         </div>
                                     </div>

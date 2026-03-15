@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { getGenerativeModel } from 'firebase/ai';
+import { ai } from '../../lib/firebase';
 
 const AiHelper = () => {
     const { user, userData } = useAuth();
@@ -39,32 +41,51 @@ const AiHelper = () => {
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         };
         
-        setMessages(prev => [...prev, userMsg]);
+        const newMessages = [...messages, userMsg];
+        setMessages(newMessages);
         if (!customMessage) setMessageInput('');
         setIsTyping(true);
 
-        // Mock AI delay to simulate typing
-        setTimeout(() => {
-            let responseText = `That's an interesting point, ${firstName}! Since I'm currently running in demo mode without API keys, I can only provide this generic response. But normally, I'd give you tailored career advice!`;
+        try {
+            // Initialize the GenerativeModel instance
+            const model = getGenerativeModel(ai, { model: 'gemini-1.5-flash', mode: 'prefer_in_cloud' });
             
-            const lowerText = textToSend.toLowerCase();
-            if (lowerText.includes('resume')) {
-                responseText = "For your resume, I'd highly recommend quantifying your impact (e.g., 'increased performance by 20%'). Also, ensure you feature your strongest projects and keep it strictly to one page if you have less than 10 years of experience.";
-            } else if (lowerText.includes('roadmap')) {
-                responseText = `Based on your goal, I suggest focusing on advanced concepts in your primary language, mastering Git, and building at least one full-stack project using a modern framework like React or Next.js.`;
-            } else if (lowerText.includes('interview')) {
-                responseText = "Sure, let's practice! Tell me about a time you had to overcome a significant technical challenge in a project. How did you approach it?";
-            }
-
-            // Add AI response to UI
+            // Generate full chat history for context
+            const historyText = newMessages.map(m => `**${m.role === 'user' ? 'User' : 'Assistant'}**: ${m.content}`).join('\n\n');
+            const prompt = `You are a helpful and encouraging career mentor for a user named ${firstName}. Be concise, professional, and actionable.\n\nHere is our conversation history:\n${historyText}\n\nPlease respond to my last message. Do not output your own speaker label.`;
+            
+            // Setup an empty AI message to stream into.
             setMessages(prev => [...prev, {
                 role: 'ai',
-                content: responseText,
+                content: '',
                 timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             }]);
+
+            const result = await model.generateContentStream(prompt);
+            let fullResponse = '';
             
+            for await (const chunk of result.stream) {
+                const chunkText = chunk.text();
+                fullResponse += chunkText;
+                
+                // Update the last message text as it streams in
+                setMessages(prev => {
+                    const latest = [...prev];
+                    latest[latest.length - 1].content = fullResponse;
+                    return latest;
+                });
+            }
+        } catch (err) {
+            console.error("AI Logic Error:", err);
+            // Append an error message if the call fails
+            setMessages(prev => [...prev.slice(0, prev.length - 1), {
+                role: 'ai',
+                content: "I'm sorry, I couldn't reach my AI brain right now. Please try again later.",
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            }]);
+        } finally {
             setIsTyping(false);
-        }, 1500);
+        }
     };
 
     const handleActionChip = (action) => {
