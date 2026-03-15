@@ -87,8 +87,8 @@ const GeminiAssistant = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsOpen(true)}
-                className={`fixed bottom-8 right-8 z-50 p-4 rounded-full shadow-2xl transition-all duration-300 ${isOpen ? 'scale-0 opacity-0' : 'scale-100 opacity-100'
-                    } bg-gradient-to-r from-blue-600 to-indigo-600 text-white`}
+                className={`fixed bottom-8 right-8 z-[9999] p-4 rounded-full shadow-lg transition-all duration-300 ${isOpen ? 'scale-0 opacity-0' : 'scale-100 opacity-100'
+                    } bg-blue-600 text-white`}
             >
                 <Sparkles className="size-8 animate-pulse" />
                 <div className="absolute top-0 right-0 size-3 bg-red-500 rounded-full border-2 border-white"></div>
@@ -101,10 +101,10 @@ const GeminiAssistant = () => {
                         initial={{ opacity: 0, y: 100, scale: 0.9 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 100, scale: 0.9 }}
-                        className="fixed bottom-8 right-8 z-50 w-[400px] h-[600px] bg-white rounded-[2rem] shadow-2xl border border-gray-100 flex flex-col overflow-hidden font-sans"
+                        className="fixed bottom-8 right-8 z-[9999] w-[400px] h-[600px] bg-white rounded-[2rem] shadow-2xl border border-gray-100 flex flex-col overflow-hidden font-sans"
                     >
                         {/* Header */}
-                        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 flex flex-col justify-between relative overflow-hidden">
+                        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-6 flex flex-col justify-between relative overflow-hidden">
                             {/* Decor */}
                             <div className="absolute top-[-50%] right-[-10%] size-32 bg-white/10 blur-2xl rounded-full"></div>
 
@@ -189,7 +189,7 @@ const GeminiAssistant = () => {
 
                         {/* Input Area */}
                         <div className="p-4 bg-white border-t border-gray-100">
-                            <div className="flex items-center gap-2 bg-gray-50 p-2 rounded-2xl border border-gray-100 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
+                            <div className="flex items-center gap-2 bg-[#F8FAFC] p-2 rounded-2xl border border-gray-100 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
                                 <button className="p-2 text-gray-400 hover:text-blue-600 transition-colors">
                                     <Mic className="size-5" />
                                 </button>
@@ -205,7 +205,7 @@ const GeminiAssistant = () => {
                                     onClick={handleSend}
                                     disabled={isTyping || !input.trim()}
                                     className={`p-2 rounded-xl transition-all ${input.trim() && !isTyping
-                                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
+                                        ? 'bg-blue-600 text-white shadow-lg shadow-sm'
                                         : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                         }`}
                                 >

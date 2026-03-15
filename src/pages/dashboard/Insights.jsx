@@ -7,7 +7,7 @@ const Insights = () => {
     return (
         <div className="space-y-8">
             {/* Header Section */}
-            <div className="bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
+            <div className=" rounded-3xl p-8 text-white shadow-sm relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-8 opacity-10">
                     <Sparkles size={120} />
                 </div>

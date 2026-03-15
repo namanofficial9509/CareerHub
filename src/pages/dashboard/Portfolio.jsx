@@ -23,14 +23,14 @@ const Portfolio = () => {
             </div>
 
             {/* Document Container */}
-            <div className="bg-white p-10 md:p-12 rounded-[2.5rem] shadow-2xl shadow-gray-200/50 border border-gray-100 min-h-screen">
+            <div className="bg-white p-10 md:p-12 rounded-[2.5rem] shadow-sm shadow-sm border border-gray-100 min-h-screen">
                 <PortfolioHeader />
 
                 {/* Professional Summary */}
                 <div className="py-8 border-b border-gray-100">
                     <div className="flex items-center gap-3 mb-4">
                         <h3 className="text-lg font-[900] text-gray-900 border-l-4 border-indigo-600 pl-3 uppercase tracking-wide">Professional Summary</h3>
-                        <span className="bg-indigo-50 text-indigo-600 text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-wide">AI Curated</span>
+                        <span className="bg-blue-50 text-indigo-600 text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-wide">AI Curated</span>
                     </div>
                     <p className="text-gray-600 leading-relaxed font-medium">
                         Aspiring professional pursuing {course} at {university}. Passionate about building scalable applications and solving complex problems. Dedicated to continuous learning and leveraging technology to create impactful solutions.

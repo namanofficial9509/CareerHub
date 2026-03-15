@@ -8,7 +8,7 @@ const DashboardLayout = () => {
     const { isDarkMode, toggleDarkMode } = useTheme();
 
     return (
-        <div className="min-h-screen bg-[#fcfcff] dark:bg-gray-950 font-display relative transition-colors duration-300">
+        <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0B0F19] font-display relative transition-colors duration-300">
             <Sidebar />
             <GeminiAssistant />
 
@@ -19,16 +19,16 @@ const DashboardLayout = () => {
                 <div className="absolute top-8 right-8 z-30 hidden md:flex items-center gap-4">
                     <button 
                         onClick={toggleDarkMode}
-                        className="relative size-[42px] bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-white transition-colors"
+                        className="relative size-[42px] bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-sm border border-slate-200 dark:border-slate-800 text-gray-400 hover:text-slate-500 dark:text-slate-400 dark:hover:text-white transition-colors"
                         title="Toggle Theme"
                     >
                         {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
                     </button>
-                    <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-4 py-2.5 rounded-full shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-100 dark:border-gray-700 transition-colors">
+                    <div className="flex items-center gap-2 bg-white dark:bg-slate-900 px-4 py-2.5 rounded-full shadow-sm border border-slate-200 dark:border-slate-800 transition-colors">
                         <div className="size-2 bg-emerald-500 rounded-full"></div>
                         <span className="text-[13px] font-[900] text-gray-700 dark:text-gray-200">Active Status</span>
                     </div>
-                    <button className="relative size-[42px] bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-100 dark:border-gray-700 text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-white transition-colors">
+                    <button className="relative size-[42px] bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-sm border border-slate-200 dark:border-slate-800 text-gray-400 hover:text-slate-500 dark:text-slate-400 dark:hover:text-white transition-colors">
                         <span className="material-symbols-outlined filled text-[20px]">notifications</span>
                     </button>
                 </div>

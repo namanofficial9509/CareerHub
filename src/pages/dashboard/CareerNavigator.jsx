@@ -23,10 +23,10 @@ const CareerNavigator = () => {
                     <p className="text-gray-500 font-medium mt-1">Deep technical depth analysis and readiness for target roles.</p>
                 </div>
                 <div className="flex gap-3">
-                    <button className="px-4 py-2 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl text-sm shadow-sm hover:bg-gray-50 flex items-center gap-2">
+                    <button className="px-4 py-2 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl text-sm shadow-sm hover:bg-[#F8FAFC] flex items-center gap-2">
                         <RefreshCw className="size-4" /> Sync Accounts
                     </button>
-                    <button className="px-4 py-2 bg-blue-600 text-white font-bold rounded-xl text-sm shadow-lg shadow-blue-500/30 hover:bg-blue-700 flex items-center gap-2">
+                    <button className="px-4 py-2 bg-blue-600 text-white font-bold rounded-xl text-sm shadow-lg shadow-sm hover:bg-blue-700 flex items-center gap-2">
                         Refresh Analysis
                     </button>
                 </div>
@@ -35,7 +35,7 @@ const CareerNavigator = () => {
             {/* Top Split Section */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Role Match Card (2/3 width) */}
-                <div className="lg:col-span-2 bg-white rounded-[2rem] p-8 border border-gray-100 shadow-xl shadow-gray-200/40 relative overflow-hidden">
+                <div className="lg:col-span-2 bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm shadow-sm relative overflow-hidden">
                     <div className="flex flex-col md:flex-row gap-8 items-center">
                         {/* Donut Chart Simulation */}
                         <div className="relative size-48 flex-shrink-0">
@@ -95,7 +95,7 @@ const CareerNavigator = () => {
                 </div>
 
                 {/* Risk Alerts (1/3 width) */}
-                <div className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-xl shadow-gray-200/40 flex flex-col">
+                <div className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm shadow-sm flex flex-col">
                     <div className="flex items-center gap-2 mb-6">
                         <AlertTriangle className="size-5 text-orange-500 fill-orange-500/20" />
                         <h3 className="font-bold text-gray-900 text-lg">Risk Alerts</h3>
@@ -155,9 +155,9 @@ const CareerNavigator = () => {
             {/* Bottom Split (AI Summary & Skill Gaps) */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* AI Technical Depth Summary */}
-                <div className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-xl shadow-gray-200/40">
+                <div className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm shadow-sm">
                     <div className="flex items-center gap-3 mb-6">
-                        <div className="size-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                        <div className="size-10 rounded-xl bg-blue-50 flex items-center justify-center text-indigo-600">
                             <Cpu className="size-6" />
                         </div>
                         <h3 className="font-bold text-gray-900 text-lg">AI Technical Depth Summary</h3>
@@ -182,7 +182,7 @@ const CareerNavigator = () => {
                 </div>
 
                 {/* Skill Gaps & Actions */}
-                <div className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-xl shadow-gray-200/40 flex flex-col justify-between">
+                <div className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm shadow-sm flex flex-col justify-between">
                     <div>
                         <h3 className="font-bold text-gray-900 text-lg mb-6">Skill Gaps & Actions</h3>
 
@@ -194,7 +194,7 @@ const CareerNavigator = () => {
                             ].map((skill, i) => (
                                 <div key={i} className="flex items-center justify-between group cursor-pointer">
                                     <div className="flex items-center gap-4">
-                                        <div className="size-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
+                                        <div className="size-10 bg-[#F8FAFC] rounded-xl flex items-center justify-center text-gray-400 group-hover:bg-blue-50 group-hover:text-indigo-600 transition-colors">
                                             <span className="material-symbols-outlined">{skill.icon}</span>
                                         </div>
                                         <div>

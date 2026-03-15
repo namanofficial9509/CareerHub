@@ -1,9 +1,11 @@
 import { useState, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { Download, ExternalLink, Share2, CheckCircle2, TrendingUp, Github, Briefcase, GraduationCap, MapPin, Activity, ShieldCheck, Mail, Calendar } from 'lucide-react';
 
 const Profile = () => {
     const { user, userData } = useAuth();
     const [viewAsRecruiter, setViewAsRecruiter] = useState(true);
+    const [activeTab, setActiveTab] = useState('Overview');
     const [avatarImage, setAvatarImage] = useState(null);
     const fileInputRef = useRef(null);
 
@@ -23,24 +25,20 @@ const Profile = () => {
     };
 
     return (
-        <div className="flex flex-col gap-6 w-full max-w-[1400px] mx-auto pb-12 font-display">
+        <div className="flex flex-col w-full max-w-[1400px] mx-auto pb-12 font-display">
             
-            {/* Top Identity Section - Integrated card/banner style */}
-            <div className="bg-white dark:bg-gray-800 rounded-[32px] overflow-hidden border border-gray-100 dark:border-gray-700 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.08)] transition-colors">
-                {/* Gradient Banner Background */}
-                <div className="h-[280px] bg-gradient-to-r from-[#5d46e2] via-[#5d46e2] to-[#c72bb9] relative">
-                    {/* Status at top right */}
-                    <div className="absolute top-6 right-8 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full flex items-center gap-2 shadow-sm border border-white/20">
-                        <div className="size-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                        <span className="text-[11px] font-[900] text-gray-700 uppercase tracking-widest leading-none">Recruiter Mode Active</span>
-                    </div>
+            {/* 1. Professional Identity & Header */}
+            <div className="bg-white dark:bg-slate-900 rounded-b-3xl md:rounded-3xl border-b md:border border-slate-200 dark:border-slate-800 shadow-sm relative mb-8 overflow-hidden">
+                {/* Clean Professional Accent Banner */}
+                <div className="h-32 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 relative">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-blue-600"></div>
                 </div>
 
-                {/* Profile Info Overlay */}
-                <div className="px-10 xl:pl-14 xl:pr-24 pb-8 -mt-28 relative z-10 flex flex-col xl:flex-row xl:items-start justify-between gap-12">
-                    {/* Left: Avatar & Identity Wrapper */}
-                    <div className="flex flex-col xl:flex-row items-center xl:items-start gap-8">
-                        {/* High-quality Avatar Shadow & Border */}
+                <div className="px-6 md:px-12 pb-8 -mt-16 flex flex-col md:flex-row gap-8 items-start md:items-end justify-between relative z-10 w-full">
+                    
+                    {/* Left: Avatar & Text */}
+                    <div className="flex flex-col md:flex-row gap-6 md:gap-8 md:items-end flex-1 w-full relative">
+                        {/* Avatar */}
                         <div className="relative shrink-0 group">
                             <input 
                                 type="file" 
@@ -49,12 +47,11 @@ const Profile = () => {
                                 accept="image/*" 
                                 className="hidden" 
                             />
-                            <div className="size-[160px] rounded-full bg-white p-1.5 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.3)] relative overflow-hidden">
-                                <div className="w-full h-full rounded-full bg-[#fde0d9] border border-gray-100 overflow-hidden relative flex items-end justify-center">
+                            <div className="size-[140px] rounded-full bg-white dark:bg-slate-900 p-1.5 shadow-sm border border-slate-200 dark:border-slate-800 relative z-20">
+                                <div className="w-full h-full rounded-full bg-[#fde0d9] overflow-hidden relative flex items-end justify-center">
                                     {avatarImage ? (
                                         <img src={avatarImage} alt="Avatar" className="w-full h-full object-cover" />
                                     ) : (
-                                        /* Professional Avatar SVG Illustration */
                                         <svg viewBox="0 0 100 100" className="w-[85%] h-[85%] mt-auto translate-y-2">
                                             <circle cx="50" cy="40" r="30" fill="#fbcbb7" />
                                             <path d="M 20 100 A 30 30 0 0 1 80 100" fill="#2563eb" />
@@ -66,406 +63,858 @@ const Profile = () => {
                                             <path d="M 45 53 Q 50 60 55 53 Z" fill="#ef4444" />
                                         </svg>
                                     )}
-                                    {/* Overlay for hover */}
                                     <div 
                                         onClick={() => fileInputRef.current.click()}
-                                        className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                                        className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
                                     >
-                                        <span className="material-symbols-outlined text-white text-[32px]">photo_camera</span>
+                                        <span className="material-symbols-outlined text-white text-[28px]">photo_camera</span>
                                     </div>
                                 </div>
                             </div>
-                            
-                            {/* Blue Verified Badge - Larger and Glowy */}
-                            <div className="absolute bottom-1 right-1 size-10 bg-[#2513ec] rounded-full border-4 border-white flex items-center justify-center shadow-lg shadow-indigo-600/30 z-20">
-                                <span className="material-symbols-outlined text-[20px] text-white filled">verified</span>
-                            </div>
-
-                            {/* Camera Trigger for Mobile/Always visible touch point */}
-                            <button 
-                                onClick={() => fileInputRef.current.click()}
-                                className="absolute top-2 right-2 size-10 bg-white rounded-full border border-gray-100 flex items-center justify-center shadow-md hover:scale-110 transition-transform xl:hidden"
-                            >
-                                <span className="material-symbols-outlined text-[20px] text-gray-600">photo_camera</span>
-                            </button>
                         </div>
 
-                        {/* Textual Identity Information */}
-                        <div className="flex flex-col mt-4 xl:mt-8 text-center xl:text-left">
-                            <div className="flex items-center gap-4 justify-center xl:justify-start">
-                                <h1 className="text-[40px] font-[900] text-white tracking-tight leading-none drop-shadow-md">
-                                    {userData?.onboarding?.displayName || userData?.fullName || user?.displayName || 'User'}
-                                </h1>
-                                <div className="bg-white text-[#2513ec] px-3 py-1.5 rounded-lg flex items-center gap-1.5 border border-white shadow-sm shadow-indigo-500/5">
-                                    <span className="material-symbols-outlined text-[14px] filled">verified</span>
-                                    <span className="text-[11px] font-[900] uppercase tracking-wider leading-none">AI VERIFIED</span>
+                        {/* Identity Information */}
+                        <div className="flex flex-col gap-2 pb-2">
+                            <div className="flex flex-col gap-1">
+                                <div className="flex items-center gap-3">
+                                    <h1 className="text-[32px] font-bold text-slate-900 dark:text-white leading-none tracking-tight">
+                                        {userData?.onboarding?.displayName || userData?.fullName || user?.displayName || 'User Profile'}
+                                    </h1>
+                                    {/* Credibility Signals */}
+                                    <div className="flex gap-2">
+                                        <div className="bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 p-1 rounded-md" title="University Verified">
+                                            <ShieldCheck className="size-4" />
+                                        </div>
+                                        <div className="bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 p-1 rounded-md" title="GitHub Connected">
+                                            <Github className="size-4" />
+                                        </div>
+                                    </div>
                                 </div>
+                                {/* Role Headline */}
+                                <p className="text-[18px] font-medium text-slate-700 dark:text-slate-300 mt-1">
+                                    Aspiring Backend Engineer | Distributed Systems Enthusiast
+                                </p>
                             </div>
-                            <p className="text-[17px] font-medium text-white mt-3 drop-shadow-sm whitespace-nowrap">
-                                {userData?.onboarding?.course || userData?.course || 'Course'}, {userData?.onboarding?.university || userData?.college || 'University'} 
-                                <span className="text-white/60 mx-2">|</span> 
-                                Batch of {userData?.onboarding?.currentYear || userData?.batch || '202X'}
-                            </p>
                             
-                            {/* Detailed Metadata Badges */}
-                            <div className="flex flex-wrap items-center gap-6 mt-5 justify-center xl:justify-start">
-                                <div className="flex items-center gap-2 text-[14px] font-[900] text-[#111827] bg-white/90 backdrop-blur-md px-3 py-1 rounded-full border border-white/20">
-                                    <span className="material-symbols-outlined text-[18px] text-[#2513ec]">inventory_2</span>
-                                    Grandmaster on Codeforces
-                                </div>
-                                <div className="flex items-center gap-2 text-[14px] font-[900] text-[#111827] bg-white/90 backdrop-blur-md px-3 py-1 rounded-full border border-white/20">
-                                    <span className="material-symbols-outlined text-[18px] text-[#2513ec]">school</span>
-                                    Dean's List 2024
-                                </div>
+                            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-2 text-[14px] text-slate-500 dark:text-slate-400">
+                                <div className="flex items-center gap-1.5"><GraduationCap className="size-4" /> B.Tech Computer Science, IIT Bombay</div>
+                                <div className="flex items-center gap-1.5"><MapPin className="size-4" /> Mumbai, Maharashtra</div>
+                                <div className="flex items-center gap-1.5"><Briefcase className="size-4" /> Batch of 2025</div>
                             </div>
-
-                            {/* Integrated Profile Completion Bar */}
-                            <div className="mt-8 flex items-center gap-4 xl:max-w-md">
-                                <div className="h-2.5 flex-1 bg-white/30 rounded-full overflow-hidden backdrop-blur-sm border border-white/10 shadow-inner">
-                                    <div className="w-[30%] h-full bg-gradient-to-r from-pink-500 to-[#2513ec] rounded-full shadow-[0_0_15px_rgba(255,255,255,0.6)]"></div>
+                            
+                            {/* Profile Strength Indicator */}
+                            <div className="flex items-center gap-3 mt-4 bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 max-w-sm">
+                                <div className="flex flex-col flex-1 gap-1.5">
+                                    <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                                        <span>Profile Strength</span>
+                                        <span className="text-blue-600">82%</span>
+                                    </div>
+                                    <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                        <div className="h-full bg-blue-600 rounded-full" style={{width: '82%'}}></div>
+                                    </div>
                                 </div>
-                                <span className="text-[11px] font-[900] text-[#111827] uppercase tracking-widest whitespace-nowrap drop-shadow-sm bg-white/40 px-2 py-0.5 rounded-md backdrop-blur-sm">30% Profile Completion</span>
+                                <div className="text-[11px] text-slate-500 pl-3 border-l border-slate-200 dark:border-slate-700 leading-snug">
+                                    Add <span className="font-medium text-slate-900 dark:text-white">1 project</span> to reach Platinum
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Action Hub */}
-                    <div className="flex items-center gap-3 justify-center xl:justify-end xl:mt-12 w-full xl:w-auto">
-                        <button className="h-[42px] px-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-[900] rounded-2xl transition-all flex items-center gap-2 shadow-sm text-[13px]">
-                            <span className="material-symbols-outlined text-[18px] text-gray-500 dark:text-gray-400">share</span>
-                            Share
+                    {/* Right: Actions */}
+                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto shrink-0 pb-2">
+                        <button className="w-full sm:w-auto px-5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm text-[14px]">
+                            <Share2 className="size-4" /> Share
                         </button>
-                        <button className="h-[42px] px-4 bg-[#111827] dark:bg-gray-700 hover:bg-black dark:hover:bg-gray-600 text-white font-[900] rounded-2xl transition-all flex items-center gap-2 shadow-sm shadow-gray-900/10 text-[13px]">
-                            <span className="material-symbols-outlined text-[18px] text-gray-400 dark:text-gray-300">download</span>
-                            Resume
+                        <button className="w-full sm:w-auto px-5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm text-[14px]">
+                            <ExternalLink className="size-4" /> Portfolio
                         </button>
-                        <button className="h-[42px] px-5 bg-[#2513ec] hover:bg-[#1a0db0] text-white font-[900] rounded-2xl transition-all flex items-center gap-2 shadow-lg shadow-indigo-600/20 text-[13px]">
-                            <span className="material-symbols-outlined text-[18px] filled text-white/90">visibility</span>
-                            Portfolio
+                        {/* Primary Action */}
+                        <button className="w-full sm:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm text-[14px]">
+                            <Download className="size-4" /> Download Resume
                         </button>
                     </div>
                 </div>
             </div>
 
-            {/* Main Bento Grid */}
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                
-                {/* Left Section (Core & Academic) */}
-                <div className="xl:col-span-2 flex flex-col gap-6">
+            {/* Internal OS Tabs Navigation */}
+            <div className="flex overflow-x-auto no-scrollbar gap-2 mb-8 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm w-max mx-auto md:mx-0">
+                {['Overview', 'Timeline', 'Data Hub', 'Resume Studio'].map((tab) => (
+                    <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        className={`px-6 py-2.5 rounded-xl font-medium text-[14px] transition-all whitespace-nowrap ${
+                            activeTab === tab 
+                            ? 'bg-blue-600 text-white shadow-sm' 
+                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                        }`}
+                    >
+                        {tab}
+                    </button>
+                ))}
+            </div>
+
+            {/* Layout Grid */}
+            {activeTab === 'Overview' && (
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start animate-in fade-in duration-500">
                     
-                    {/* Academic Excellence Segment */}
-                    <div className="bg-white dark:bg-gray-800 rounded-[32px] p-10 border border-gray-100 dark:border-gray-700 shadow-[0_4px_25px_-10px_rgba(0,0,0,0.05)] transition-colors">
-                        <div className="flex justify-between items-center mb-10">
-                            <div className="flex items-center gap-3">
-                                <div className="size-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/40 flex items-center justify-center text-[#2513ec] dark:text-indigo-400 shadow-sm">
-                                    <span className="material-symbols-outlined text-[20px] filled">bar_chart</span>
+                    {/* Left Column (Main Content) */}
+                    <div className="xl:col-span-2 flex flex-col gap-8">
+                    
+                    {/* 2. Structured Skills Section */}
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+                        <h3 className="text-[20px] font-bold text-slate-900 dark:text-white mb-6 tracking-tight">Technical & Soft Skills</h3>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="flex flex-col gap-6">
+                                <div>
+                                    <h4 className="text-[12px] font-bold text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wider">Core Languages & Frameworks</h4>
+                                    <div className="flex flex-wrap gap-2">
+                                        {['JavaScript (ES6+)', 'Node.js', 'React.js', 'Python', 'Go'].map(skill => (
+                                            <span key={skill} className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-800/50 font-medium text-[13px] px-3.5 py-1.5 rounded-lg">
+                                                {skill}
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
-                                <h3 className="text-[20px] font-[900] text-gray-900 dark:text-white tracking-tight">Academic Performance</h3>
-                            </div>
-                            <span className="text-[10px] font-[900] text-gray-400 dark:text-gray-500 uppercase tracking-[0.15em] opacity-80">Registrar Verified</span>
-                        </div>
-
-                        {/* Core Academic Metrics */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-12">
-                            <div className="bg-[#fbfcff] dark:bg-gray-800/50 border border-indigo-100/20 dark:border-gray-700 rounded-[24px] p-6 flex flex-col justify-center">
-                                <span className="text-[12px] font-bold text-gray-400 dark:text-gray-500 mb-2">Current CGPA</span>
-                                <span className="text-[36px] font-[900] text-[#2513ec] dark:text-indigo-400 leading-none tracking-tight">9.2</span>
-                            </div>
-                            <div className="bg-[#fbfcff] dark:bg-gray-800/50 border border-indigo-100/20 dark:border-gray-700 rounded-[24px] p-6 flex flex-col justify-center">
-                                <span className="text-[12px] font-bold text-gray-400 dark:text-gray-500 mb-2">Major GPA</span>
-                                <span className="text-[36px] font-[900] text-gray-900 dark:text-white leading-none tracking-tight">9.5</span>
-                            </div>
-                            <div className="bg-[#fbfcff] dark:bg-gray-800/50 border border-indigo-100/20 dark:border-gray-700 rounded-[24px] p-6 flex flex-col justify-center">
-                                <span className="text-[12px] font-bold text-gray-400 dark:text-gray-500 mb-2">Completed</span>
-                                <div className="flex items-baseline gap-1.5">
-                                    <span className="text-[36px] font-[900] text-gray-900 dark:text-white leading-none tracking-tight">6/8</span>
-                                    <span className="text-[13px] font-bold text-gray-400 dark:text-gray-500">Sem</span>
+                                <div>
+                                    <h4 className="text-[12px] font-bold text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wider">Cloud & Databases</h4>
+                                    <div className="flex flex-wrap gap-2">
+                                        {['PostgreSQL', 'MongoDB', 'Redis', 'AWS EC2', 'Docker'].map(skill => (
+                                            <span key={skill} className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-medium text-[13px] px-3.5 py-1.5 rounded-lg">
+                                                {skill}
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
-                            <div className="bg-[#fbfcff] dark:bg-gray-800/50 border border-indigo-100/20 dark:border-gray-700 rounded-[24px] p-6 flex flex-col justify-center">
-                                <span className="text-[12px] font-bold text-gray-400 dark:text-gray-500 mb-2">Credits</span>
-                                <span className="text-[36px] font-[900] text-gray-900 dark:text-white leading-none tracking-tight">120</span>
-                            </div>
-                        </div>
-
-                        {/* Semantic Bar Graph with Precise Visual Styling */}
-                        <div className="h-[180px] flex items-end gap-5 justify-between px-4 mt-8 relative border-b-2 border-dashed border-indigo-50/50">
-                            {/* Sem 1 - 6 Bars */}
-                            {[
-                                { h: '45%', color: 'from-[#dbe0ff] to-[#c6cfff]', label: 'SEM 1' },
-                                { h: '70%', color: 'from-[#c6cfff] to-[#a8b7ff]', label: 'SEM 2' },
-                                { h: '60%', color: 'from-[#a8b7ff] to-[#8398ff]', label: 'SEM 3' },
-                                { h: '88%', color: 'from-[#8398ff] to-[#5b64ff]', label: 'SEM 4' },
-                                { h: '82%', color: 'from-[#5b64ff] to-[#4c3ce4]', label: 'SEM 5' },
-                                { h: '100%', color: 'from-[#3613e5] to-[#2513ec]', label: 'SEM 6' },
-                            ].map((bar, idx) => (
-                                <div key={idx} className="flex-1 flex flex-col items-center group h-full justify-end">
-                                    <div 
-                                        style={{ height: bar.h }}
-                                        className={`w-[70%] max-w-[48px] bg-gradient-to-t ${bar.color} rounded-t-[14px] transition-all duration-500 group-hover:scale-y-105 shadow-sm`}
-                                    />
-                                    <span className="absolute -bottom-8 text-[10px] font-[900] text-gray-400 tracking-[0.1em]">{bar.label}</span>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Professional Verification Badge */}
-                        <div className="flex items-center justify-between mt-16 pt-6 border-t border-indigo-50/30">
-                            <div className="flex items-center gap-2 text-[12px] font-bold text-gray-400">
-                                <span className="material-symbols-outlined text-[16px] text-emerald-500 filled">security</span>
-                                Verified through university registrar API integration • Last updated: 2 days ago
-                            </div>
-                            <button className="flex items-center gap-1.5 px-4 py-2 bg-[#2513ec]/10 text-[#2513ec] hover:bg-[#2513ec] hover:text-white transition-all rounded-xl text-[12px] font-[900] uppercase tracking-wider shadow-sm">
-                                <span className="material-symbols-outlined text-[18px]">add</span>
-                                Add
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Skill-Set Portfolio */}
-                    <div className="bg-white dark:bg-gray-800 rounded-[32px] p-10 border border-gray-100 dark:border-gray-700 shadow-[0_4px_25px_-10px_rgba(0,0,0,0.05)] transition-colors">
-                        <div className="flex items-center gap-3 mb-10">
-                            <div className="size-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/40 flex items-center justify-center text-[#2513ec] dark:text-indigo-400">
-                                <span className="material-symbols-outlined text-[20px] filled">military_tech</span>
-                            </div>
-                            <h3 className="text-[20px] font-[900] text-gray-900 dark:text-white tracking-tight">Skill Set</h3>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                            {/* Tech Core */}
+                            
                             <div>
-                                <h4 className="text-[11px] font-[900] text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4">Core Technical</h4>
-                                <div className="flex flex-wrap gap-2.5">
-                                    {['React.js', 'Node.js', 'Python', 'TypeScript'].map(skill => (
-                                        <span key={skill} className="bg-[#f6f6ff] dark:bg-indigo-900/20 text-[#2513ec] dark:text-indigo-300 font-[900] text-[13px] px-5 py-2 rounded-2xl border border-indigo-50 dark:border-indigo-800/30 select-none hover:bg-white dark:hover:bg-gray-700 hover:shadow-md transition-all">
-                                            {skill}
-                                        </span>
+                                <h4 className="text-[12px] font-bold text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wider">Soft Skills (AI Verified)</h4>
+                                <div className="flex flex-col gap-2">
+                                    {['Cross-functional Leadership', 'Technical Communication', 'Agile Methodologies'].map(skill => (
+                                        <div key={skill} className="flex items-center gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3 rounded-xl shadow-sm">
+                                            <CheckCircle2 className="size-5 text-green-500" />
+                                            <span className="text-[14px] font-medium text-slate-700 dark:text-slate-300">{skill}</span>
+                                        </div>
                                     ))}
                                 </div>
                             </div>
+                        </div>
+                    </div>
 
-                            {/* Verified Soft Skills */}
-                            <div>
-                                <div className="flex items-center gap-2 mb-4">
-                                    <h4 className="text-[11px] font-[900] text-gray-400 dark:text-gray-500 uppercase tracking-widest">Soft Skills</h4>
-                                    <span className="text-[9px] font-[900] text-[#2513ec] dark:text-indigo-400 uppercase italic tracking-tighter opacity-80">AI-VERIFIED</span>
+                    {/* 3. Impact-Driven Experience */}
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+                        <h3 className="text-[20px] font-bold text-slate-900 dark:text-white mb-8 tracking-tight">Work Experience</h3>
+                        
+                        <div className="flex flex-col gap-8 relative">
+                            {/* Vertical Line for Timeline */}
+                            <div className="absolute left-[19px] top-6 bottom-4 w-px bg-slate-200 dark:bg-slate-700"></div>
+
+                            {/* Timeline Item 1 */}
+                            <div className="flex gap-6 relative z-10 group">
+                                <div className="size-10 rounded-full bg-white dark:bg-slate-900 border-4 border-slate-100 dark:border-slate-800 flex items-center justify-center shrink-0 shadow-sm">
+                                    <div className="size-4 rounded-full bg-blue-600"></div>
                                 </div>
-                                <div className="flex flex-wrap gap-3">
-                                {['Leadership', 'Communication'].map(skill => (
-                                    <div key={skill} className="bg-white dark:bg-gray-800 shadow-sm text-emerald-600 dark:text-emerald-400 font-[900] text-[13px] px-4 pl-2 py-2 rounded-2xl border border-emerald-100/60 dark:border-emerald-800/40 flex items-center gap-2 select-none">
-                                        <span className="material-symbols-outlined text-[16px] filled">check_circle</span>
-                                        {skill}
+                                <div className="flex-1 pb-4">
+                                    <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-1 mb-2">
+                                        <div>
+                                            <h4 className="text-[16px] font-bold text-slate-900 dark:text-white tracking-tight group-hover:text-blue-600 transition-colors">Software Engineer Intern</h4>
+                                            <p className="text-[14px] font-medium text-slate-600 dark:text-slate-400">Microsoft</p>
+                                        </div>
+                                        <div className="flex items-center gap-1.5 text-[12px] font-medium text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md h-max">
+                                            <Calendar className="size-3.5" /> May 2024 - Aug 2024
+                                        </div>
                                     </div>
+                                    <p className="text-[14px] text-slate-600 dark:text-slate-400 mb-3">
+                                        Worked on the Azure Core Infrastructure team improving microservice deployment pipelines.
+                                    </p>
+                                    <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700/50">
+                                        <p className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-2">Key Impact</p>
+                                        <ul className="list-disc list-outside ml-4 text-[13.5px] text-slate-700 dark:text-slate-300 space-y-1.5 marker:text-blue-600">
+                                            <li>Reduced container deployment latency by <span className="font-bold text-blue-600 dark:text-blue-400">30%</span> using optimized caching strategies.</li>
+                                            <li>Authored 15+ comprehensive unit tests in Jest, increasing coverage from 75% to 92%.</li>
+                                            <li>Migrated legacy CI/CD bash scripts to GitHub Actions.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Timeline Item 2 */}
+                            <div className="flex gap-6 relative z-10 group">
+                                <div className="size-10 rounded-full bg-white dark:bg-slate-900 border-4 border-slate-100 dark:border-slate-800 flex items-center justify-center shrink-0 shadow-sm">
+                                    <div className="size-3.5 rounded-full bg-slate-300 dark:bg-slate-600"></div>
+                                </div>
+                                <div className="flex-1">
+                                    <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-1 mb-2">
+                                        <div>
+                                            <h4 className="text-[16px] font-bold text-slate-900 dark:text-white tracking-tight group-hover:text-blue-600 transition-colors">Backend Developer (Contract)</h4>
+                                            <p className="text-[14px] font-medium text-slate-600 dark:text-slate-400">Local Startup Inc.</p>
+                                        </div>
+                                        <div className="flex items-center gap-1.5 text-[12px] font-medium text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md h-max">
+                                            <Calendar className="size-3.5" /> Jan 2023 - Dec 2023
+                                        </div>
+                                    </div>
+                                    <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700/50 mt-3">
+                                        <p className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-2">Key Impact</p>
+                                        <ul className="list-disc list-outside ml-4 text-[13.5px] text-slate-700 dark:text-slate-300 space-y-1.5 marker:text-slate-500">
+                                            <li>Architected REST APIs using Node.js/Express handling 5,000+ daily requests.</li>
+                                            <li>Integrated Stripe payment gateway for seamless user subscription flows.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 4. Projects with Metrics */}
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+                        <div className="flex items-center justify-between mb-8">
+                            <h3 className="text-[20px] font-bold text-slate-900 dark:text-white tracking-tight">Featured Projects</h3>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {[
+                                { 
+                                    title: 'AI Resume Parser', 
+                                    desc: 'Built a multi-modal parser using OpenAI GPT-4 to extract structured data from complex PDF/Word formats.', 
+                                    tags: ['Python', 'FastAPI', 'OpenAI'],
+                                    metric: '91% Accuracy Rate',
+                                    metricColor: 'text-green-600 bg-green-50 dark:bg-green-500/10'
+                                },
+                                { 
+                                    title: 'Distributed Task Queue', 
+                                    desc: 'A high-performance asynchronous task scheduling system relying on pub/sub mechanisms.', 
+                                    tags: ['Golang', 'Redis', 'Docker'],
+                                    metric: '10k Ops / Sec',
+                                    metricColor: 'text-blue-600 bg-blue-50 dark:bg-blue-500/10'
+                                }
+                            ].map((proj, idx) => (
+                                <div key={idx} className="flex flex-col bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/50 transition-all hover:shadow-md hover:-translate-y-1">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <h4 className="text-[16px] font-bold text-slate-900 dark:text-white">{proj.title}</h4>
+                                        <div className="flex gap-2">
+                                            <a href="#" className="text-slate-400 hover:text-slate-900 dark:hover:text-white"><Github className="size-4" /></a>
+                                            <a href="#" className="text-slate-400 hover:text-slate-900 dark:hover:text-white"><ExternalLink className="size-4" /></a>
+                                        </div>
+                                    </div>
+                                    
+                                    <p className="text-[13px] text-slate-600 dark:text-slate-400 leading-relaxed mb-5 flex-1">
+                                        {proj.desc}
+                                    </p>
+
+                                    <div className={`px-3 py-1.5 rounded-lg w-max text-[12px] font-bold mb-5 flex items-center gap-1.5 ${proj.metricColor}`}>
+                                        <TrendingUp className="size-3.5" />
+                                        Impact: {proj.metric}
+                                    </div>
+
+                                    <div className="flex flex-wrap gap-2 mt-auto pt-4 border-t border-slate-200 dark:border-slate-700/50">
+                                        {proj.tags.map(tag => (
+                                            <span key={tag} className="text-[11px] font-medium text-slate-500 dark:text-slate-400 px-2.5 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md">
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Academic Performance (Data-Rich) */}
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+                        <div className="flex justify-between items-center mb-8">
+                            <h3 className="text-[20px] font-bold text-slate-900 dark:text-white tracking-tight">Academic Performance</h3>
+                            <div className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-md uppercase tracking-wider">
+                                <ShieldCheck className="size-3.5" /> Registrar Verified
+                            </div>
+                        </div>
+
+                        {/* Top Metrics */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50">
+                                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">Current CGPA</p>
+                                <p className="text-[28px] font-bold text-slate-900 dark:text-white">9.2<span className="text-[14px] text-slate-400">/10</span></p>
+                            </div>
+                            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50">
+                                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">Major GPA</p>
+                                <p className="text-[28px] font-bold text-slate-900 dark:text-white">9.5<span className="text-[14px] text-slate-400">/10</span></p>
+                            </div>
+                            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50">
+                                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">Completed Sem.</p>
+                                <p className="text-[28px] font-bold text-slate-900 dark:text-white">6<span className="text-[14px] text-slate-400">/8</span></p>
+                            </div>
+                            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50">
+                                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">Credits</p>
+                                <p className="text-[28px] font-bold text-slate-900 dark:text-white">120</p>
+                            </div>
+                        </div>
+
+                        {/* Trend Bar Graph - Fixed Scale and Data */}
+                        <div className="flex flex-col gap-2">
+                            <div className="flex justify-between items-center text-[12px] font-medium text-slate-500 mb-2">
+                                <span>Performance Trend over 6 Semesters</span>
+                                <span className="flex items-center gap-1 text-green-600 font-bold bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded"><TrendingUp className="size-3"/> +1.3 GPA Growth</span>
+                            </div>
+                            <div className="h-40 flex items-end gap-3 justify-between relative border-b border-slate-200 dark:border-slate-800 pt-4">
+                                {/* Grid Lines */}
+                                <div className="absolute top-0 w-full border-t border-dashed border-slate-200 dark:border-slate-800"></div>
+                                <div className="absolute top-1/2 w-full border-t border-dashed border-slate-200 dark:border-slate-800"></div>
+                                
+                                {[
+                                    { val: '7.9', h: '60%', g: 'bg-slate-200 dark:bg-slate-700', label: 'Sem 1' },
+                                    { val: '8.1', h: '68%', g: 'bg-slate-200 dark:bg-slate-700', label: 'Sem 2' },
+                                    { val: '8.5', h: '75%', g: 'bg-slate-200 dark:bg-slate-700', label: 'Sem 3' },
+                                    { val: '8.9', h: '82%', g: 'bg-blue-300 dark:bg-blue-800/60', label: 'Sem 4' },
+                                    { val: '9.0', h: '86%', g: 'bg-blue-400 dark:bg-blue-700', label: 'Sem 5' },
+                                    { val: '9.2', h: '95%', g: 'bg-blue-600 dark:bg-blue-600', label: 'Sem 6' },
+                                ].map((bar, idx) => (
+                                    <div key={idx} className="flex-1 flex flex-col items-center group h-full justify-end relative z-10">
+                                        <span className="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-6 text-[11px] font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 p-1 rounded shadow-sm border border-slate-200 dark:border-slate-700">{bar.val}</span>
+                                        <div 
+                                            style={{ height: bar.h }}
+                                            className={`w-full max-w-[40px] ${bar.g} rounded-t-lg transition-all duration-300 group-hover:bg-blue-500`}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="flex justify-between w-full mt-2">
+                                {['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6'].map((l, i) => (
+                                    <span key={i} className="flex-1 text-center text-[11px] font-medium text-slate-500">{l}</span>
                                 ))}
                             </div>
                         </div>
                     </div>
-
-                    <div className="flex justify-end mt-10">
-                        <button className="flex items-center gap-1.5 px-4 py-2 bg-[#2513ec]/10 text-[#2513ec] hover:bg-[#2513ec] hover:text-white transition-all rounded-xl text-[12px] font-[900] uppercase tracking-wider shadow-sm">
-                            <span className="material-symbols-outlined text-[18px]">add</span>
-                            Add
-                        </button>
-                    </div>
                 </div>
 
-                    {/* Showcased Projects Section */}
-                    <div className="flex flex-col gap-5 mt-2">
-                        <div className="flex items-center justify-between px-2">
-                            <div className="flex items-center gap-3">
-                                <div className="size-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/40 flex items-center justify-center text-[#2513ec] dark:text-indigo-400">
-                                    <span className="material-symbols-outlined text-[18px] filled">category</span>
-                                </div>
-                                <h3 className="text-[18px] font-[900] text-gray-900 dark:text-white tracking-tight">Projects & Works</h3>
-                            </div>
-                            <button className="text-[12px] font-[900] text-[#2513ec] dark:text-indigo-400 hover:indigo-800 tracking-widest uppercase">View All</button>
+                {/* Right Column (Recruiter Sticky Panel & Analytics) */}
+                <div className="xl:col-span-1 h-max sticky top-24 flex flex-col gap-8">
+                    
+                    {/* Sticky Recruiter Action Console */}
+                    <div className="bg-slate-900 dark:bg-[#0B0F19] rounded-2xl p-8 border border-slate-800 shadow-sm flex flex-col gap-6">
+                        <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                            <span className="text-[12px] font-bold text-slate-400 uppercase tracking-widest">Recruiter Portal</span>
                         </div>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div className="flex flex-col gap-4 mb-2">
+                            <div>
+                                <h4 className="text-[12px] font-medium text-slate-500 mb-2">Available for:</h4>
+                                <div className="flex gap-2">
+                                    <span className="text-[12px] font-medium text-emerald-400 bg-emerald-900/30 px-3 py-1 rounded-md border border-emerald-800/50">✓ Internship</span>
+                                    <span className="text-[12px] font-medium text-emerald-400 bg-emerald-900/30 px-3 py-1 rounded-md border border-emerald-800/50">✓ Full-time (2025)</span>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 className="text-[12px] font-medium text-slate-500 mb-2">Preferred Roles:</h4>
+                                <div className="flex gap-2 flex-wrap">
+                                    <span className="text-[12px] font-medium text-slate-300 bg-slate-800 px-3 py-1 rounded-md border border-slate-700">Backend Eng</span>
+                                    <span className="text-[12px] font-medium text-slate-300 bg-slate-800 px-3 py-1 rounded-md border border-slate-700">Platform Eng</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-3">
+                            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-[14px] font-medium py-3 rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm">
+                                <Calendar className="size-4" /> Schedule Interview
+                            </button>
+                            <button className="w-full bg-slate-800 hover:bg-slate-700 text-white text-[14px] font-medium py-3 rounded-xl transition-all border border-slate-700 flex items-center justify-center gap-2">
+                                <Mail className="size-4" /> Contact Student
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Job Readiness Analytical Dashboard */}
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <h3 className="text-[16px] font-bold text-slate-900 dark:text-white tracking-tight mb-8">Comprehensive Readiness</h3>
+                        
+                        {/* High-Impact Circular Gauge */}
+                        <div className="flex justify-center mb-8">
+                            <div className="relative size-[140px] flex items-center justify-center">
+                                <svg className="size-full -rotate-90" viewBox="0 0 36 36">
+                                    <path className="text-slate-100 dark:text-slate-800" strokeWidth="4" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <path className="text-blue-600 filter drop-shadow-sm" strokeWidth="4" strokeDasharray="88, 100" strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                </svg>
+                                <div className="absolute text-center flex flex-col justify-center">
+                                    <span className="text-[32px] font-bold text-slate-900 dark:text-white leading-none tracking-tight">88%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Sub-score Breakdown */}
+                        <div className="space-y-4">
                             {[
-                                { title: 'AI Resume Parser', desc: 'Built a multi-modal parser using OpenAI GPT-4 to extract structured data from complex formats.', tags: ['Python', 'LLM'] },
-                                { title: 'Distributed Task Queue', desc: 'A high-performance task scheduling system built with Go and Redis. Scalable to 10k ops/sec.', tags: ['Golang', 'Redis'] }
-                            ].map(proj => (
-                                <div key={proj.title} className="bg-white dark:bg-gray-800 rounded-[28px] p-8 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all group cursor-pointer border-t-4 border-t-transparent hover:border-t-indigo-500">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <h4 className="text-[16px] font-[900] text-gray-900 dark:text-white tracking-tight group-hover:text-indigo-600 transition-colors">{proj.title}</h4>
-                                        <span className="material-symbols-outlined text-[#2513ec] dark:text-indigo-400 text-[20px] filled">verified</span>
+                                {label: 'DSA Skills', score: '92%', width:'92%'},
+                                {label: 'Projects', score: '85%', width:'85%'},
+                                {label: 'Communication', score: '78%', width:'78%'},
+                                {label: 'System Design', score: '80%', width:'80%'},
+                            ].map((item, i) => (
+                                <div key={i}>
+                                    <div className="flex justify-between items-baseline mb-1">
+                                        <span className="text-[13px] font-medium text-slate-600 dark:text-slate-400">{item.label}</span>
+                                        <span className="text-[13px] font-bold text-slate-900 dark:text-white">{item.score}</span>
                                     </div>
-                                    <p className="text-[13px] font-medium text-gray-500 dark:text-gray-400 leading-relaxed mb-8 opacity-80 line-clamp-2">
-                                        {proj.desc}
-                                    </p>
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex gap-2">
-                                            {proj.tags.map(tag => (
-                                                <span key={tag} className="bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-[10px] font-[900] px-3 py-1.5 rounded-lg border border-gray-100 dark:border-gray-600 uppercase tracking-widest">{tag}</span>
-                                            ))}
-                                        </div>
-                                        <div className="size-8 rounded-full bg-gray-50 dark:bg-gray-700 flex items-center justify-center text-gray-400 dark:text-gray-400 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/30 group-hover:text-indigo-500 transition-colors">
-                                            <span className="material-symbols-outlined text-[16px]">link</span>
-                                        </div>
+                                    <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                        <div className="bg-blue-600 h-full rounded-full" style={{ width: item.width }}></div>
                                     </div>
                                 </div>
                             ))}
                         </div>
-                        <div className="flex justify-end mt-4">
-                            <button className="flex items-center gap-1.5 px-4 py-2 bg-white text-[#2513ec] border border-indigo-100 hover:bg-[#2513ec] hover:text-white transition-all rounded-xl text-[12px] font-[900] uppercase tracking-wider shadow-sm">
-                                <span className="material-symbols-outlined text-[18px]">add</span>
-                                Add
-                            </button>
-                        </div>
                     </div>
 
-                    {/* Accreditations & Badges Grid */}
-                    <div className="flex flex-col gap-5 mt-2">
-                        <div className="flex items-center gap-3 px-2">
-                            <div className="size-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/40 flex items-center justify-center text-[#2513ec] dark:text-indigo-400">
-                                <span className="material-symbols-outlined text-[18px] filled">video_library</span>
-                            </div>
-                            <h3 className="text-[18px] font-[900] text-gray-900 dark:text-white tracking-tight">Courses & Certifications</h3>
+                    {/* Recent Platform Activity */}
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <div className="flex items-center gap-2 mb-6">
+                            <Activity className="size-5 text-blue-600" />
+                            <h3 className="text-[16px] font-bold text-slate-900 dark:text-white tracking-tight">Recent Activity</h3>
                         </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div className="bg-white dark:bg-gray-800 rounded-[28px] p-7 border border-gray-100 dark:border-gray-700 shadow-sm flex items-center gap-5 hover:border-indigo-100 transition-all group cursor-pointer">
-                                <div className="size-[64px] bg-blue-50 dark:bg-blue-900/40 text-blue-500 dark:text-blue-400 rounded-2xl flex items-center justify-center shrink-0 shadow-sm group-hover:scale-110 transition-transform">
-                                    <span className="material-symbols-outlined text-[28px] filled">auto_awesome</span>
-                                </div>
+
+                        <div className="flex flex-col gap-5">
+                            <div className="flex gap-3 items-start">
+                                <div className="size-2 mt-1.5 rounded-full bg-blue-600"></div>
                                 <div>
-                                    <h4 className="text-[14px] font-[900] text-gray-900 dark:text-white tracking-tight group-hover:text-indigo-600 transition-colors">Microsoft AI Camp</h4>
-                                    <p className="text-[11px] font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-wider">Issued Oct 2023</p>
+                                    <p className="text-[14px] text-slate-700 dark:text-slate-300 font-medium">Solved 15 LeetCode problems this week</p>
+                                    <span className="text-[11px] text-slate-500">2 days ago</span>
                                 </div>
                             </div>
-                            
-                            <div className="bg-white dark:bg-gray-800 rounded-[28px] p-7 border border-gray-100 dark:border-gray-700 shadow-sm flex items-center gap-5 hover:border-indigo-100 transition-all group cursor-pointer">
-                                <div className="size-[64px] bg-orange-50 dark:bg-orange-900/40 text-orange-500 dark:text-orange-400 rounded-2xl flex items-center justify-center shrink-0 shadow-sm group-hover:scale-110 transition-transform">
-                                    <span className="material-symbols-outlined text-[28px] filled">cloud</span>
-                                </div>
+                            <div className="flex gap-3 items-start">
+                                <div className="size-2 mt-1.5 rounded-full bg-emerald-500"></div>
                                 <div>
-                                    <h4 className="text-[14px] font-[900] text-gray-900 dark:text-white tracking-tight group-hover:text-indigo-600 transition-colors">AWS Certified Developer</h4>
-                                    <p className="text-[11px] font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-wider">Associate Level • 2024</p>
+                                    <p className="text-[14px] text-slate-700 dark:text-slate-300 font-medium">Completed Backend Architecture Assessment</p>
+                                    <span className="text-[11px] text-slate-500">5 days ago</span>
                                 </div>
                             </div>
-                        </div>
-                        <div className="flex justify-end mt-4">
-                            <button className="flex items-center gap-1.5 px-4 py-2 bg-white text-[#2513ec] border border-indigo-100 hover:bg-[#2513ec] hover:text-white transition-all rounded-xl text-[12px] font-[900] uppercase tracking-wider shadow-sm">
-                                <span className="material-symbols-outlined text-[18px]">add</span>
-                                Add
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
-
-                {/* Right Pipeline (Recruitment & Performance Analytics) */}
-                <div className="xl:col-span-1 flex flex-col gap-6">
-                    
-                    {/* Recruiter Action Control Console */}
-                    <div className="bg-white dark:bg-gray-800 rounded-[32px] p-8 border border-gray-100 dark:border-gray-700 shadow-xl shadow-[#2513ec]/5 dark:shadow-none flex flex-col gap-6 transition-colors">
-                        <div className="flex items-center justify-between pb-6 border-b border-indigo-50/50 dark:border-gray-700">
-                            <span className="text-[14px] font-[900] text-[#111827] dark:text-white tracking-tight">View as Recruiter</span>
-                            <div 
-                                onClick={() => setViewAsRecruiter(!viewAsRecruiter)}
-                                className={`w-12 h-6 rounded-full relative cursor-pointer shadow-lg transition-all duration-300 ${viewAsRecruiter ? 'bg-[#2513ec] shadow-indigo-200 dark:shadow-indigo-900/50' : 'bg-gray-200 dark:bg-gray-700 shadow-none'}`}
-                            >
-                                <div className={`absolute top-1 size-4 bg-white rounded-full transition-all duration-300 ${viewAsRecruiter ? 'right-1' : 'right-7'}`}></div>
-                            </div>
-                        </div>
-                        {viewAsRecruiter && (
-                            <div className="flex flex-col gap-3">
-                                <button className="w-full bg-[#f8f9ff] hover:bg-indigo-50 text-[#111827] text-[14px] font-[900] py-4 rounded-2xl transition-all border border-indigo-100/50 flex items-center justify-center gap-2 group">
-                                    <span className="material-symbols-outlined text-[20px] text-indigo-400 group-hover:scale-110 transition-transform">schedule</span>
-                                    Schedule Interview
-                                </button>
-                                <button className="w-full bg-[#2513ec] hover:bg-[#1a0db0] text-white text-[14px] font-[900] py-4 rounded-2xl transition-all shadow-xl shadow-indigo-600/20 flex items-center justify-center gap-2 group">
-                                    <span className="material-symbols-outlined text-[20px] text-white/90 group-hover:scale-110 transition-transform">mail</span>
-                                    Contact Student
-                                </button>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Job Readiness Analytical Dashboard */}
-                    <div className="bg-white dark:bg-gray-800 rounded-[32px] p-10 border border-gray-100 dark:border-gray-700 shadow-[0_4px_25px_-10px_rgba(37,19,236,0.05)] dark:shadow-none relative overflow-hidden group transition-colors">
-                        {/* Decorative background element */}
-                        <div className="absolute top-0 right-0 w-40 h-40 bg-[#f0efff] dark:bg-indigo-900/20 rounded-full blur-[50px] -translate-y-12 translate-x-12 opacity-60"></div>
-                        
-                        <h3 className="text-[18px] font-[900] text-gray-900 dark:text-white tracking-tight mb-10 relative z-10">Job Readiness Score</h3>
-                        
-                        {/* High-Impact Circular Gauge */}
-                        <div className="flex justify-center mb-12 relative z-10">
-                            <div className="relative size-[160px] flex items-center justify-center transform group-hover:scale-105 transition-transform duration-700">
-                                <svg className="size-full -rotate-90 drop-shadow-sm dark:drop-shadow-none" viewBox="0 0 36 36">
-                                    <path className="text-indigo-50/50 dark:text-gray-700" strokeWidth="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                                    <path className="text-[#2513ec] dark:text-indigo-500 filter drop-shadow-[0_0_4px_rgba(37,19,236,0.3)] dark:drop-shadow-[0_0_4px_rgba(99,102,241,0.5)]" strokeWidth="4" strokeDasharray="88, 100" strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                                </svg>
-                                <div className="absolute text-center flex flex-col justify-center bg-white dark:bg-gray-800 size-[115px] rounded-full shadow-inner dark:shadow-none border border-indigo-50/20 dark:border-gray-700">
-                                    <span className="text-[38px] font-[900] text-[#111827] dark:text-white leading-none tracking-tight">88%</span>
-                                    <span className="text-[10px] font-[900] text-[#2513ec] dark:text-indigo-400 mt-1.5 uppercase tracking-[0.2em]">Excellent</span>
+                            <div className="flex gap-3 items-start">
+                                <div className="size-2 mt-1.5 rounded-full bg-slate-300 dark:bg-slate-700"></div>
+                                <div>
+                                    <p className="text-[14px] text-slate-700 dark:text-slate-300 font-medium">Updated project: Distributed Task Queue</p>
+                                    <span className="text-[11px] text-slate-500">1 week ago</span>
                                 </div>
-                            </div>
-                        </div>
-
-                        {/* Secondary Analytics Bar */}
-                        <div className="relative z-10 space-y-3 px-2">
-                            <div className="flex justify-between items-baseline mb-1">
-                                <span className="text-[12px] font-[900] text-gray-800 dark:text-gray-300 tracking-tight">Technical Assessment</span>
-                                <span className="text-[14px] font-[900] text-[#2513ec] dark:text-indigo-400">94%</span>
-                            </div>
-                            <div className="w-full bg-indigo-50/50 h-2.5 rounded-full overflow-hidden border border-indigo-50">
-                                <div className="bg-[#2513ec] h-full rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(37,19,236,0.4)]" style={{ width: '94%' }}></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Accolades & Winning Records */}
-                    <div className="bg-white dark:bg-gray-800 rounded-[32px] p-8 border border-gray-100 dark:border-gray-700 shadow-[0_4px_25px_-10px_rgba(0,0,0,0.05)] dark:shadow-none transition-colors">
-                        <div className="flex items-center gap-3 mb-8">
-                            <div className="size-9 rounded-xl bg-orange-50 dark:bg-orange-900/30 border border-orange-100 dark:border-orange-800 flex items-center justify-center text-orange-500 dark:text-orange-400 shadow-sm">
-                                <span className="material-symbols-outlined text-[20px] filled">emoji_events</span>
-                            </div>
-                            <h3 className="text-[17px] font-[900] text-gray-900 dark:text-white tracking-tight">Winning List</h3>
-                        </div>
-                        
-                        <div className="flex gap-5 items-center bg-orange-50/20 dark:bg-orange-900/10 p-5 rounded-[24px] border border-orange-100/50 dark:border-orange-800/30">
-                            <div className="size-14 rounded-2xl bg-white dark:bg-gray-800 flex items-center justify-center shrink-0 shadow-sm border border-orange-100/30 dark:border-orange-800/50">
-                                <span className="material-symbols-outlined text-[32px] text-yellow-500 filled">workspace_premium</span>
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-[15px] font-[900] text-gray-900 dark:text-white mb-0.5 tracking-tight">1st Runner Up</span>
-                                <span className="text-[12px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest opacity-80">Google HashCode 2023</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Professional Career Roadmap */}
-                    <div className="bg-white dark:bg-gray-800 rounded-[32px] p-8 border border-gray-100 dark:border-gray-700 shadow-[0_4px_25px_-10px_rgba(0,0,0,0.05)] dark:shadow-none transition-colors">
-                        <div className="mb-8">
-                            <h3 className="text-[17px] font-[900] text-gray-900 dark:text-white tracking-tight">Work Experience</h3>
-                        </div>
-                        
-                        <div className="flex gap-5 relative group cursor-default">
-                            {/* Vertical Progress Line */}
-                            <div className="absolute left-[7px] top-6 bottom-4 w-0.5 bg-gradient-to-b from-[#2513ec] dark:from-indigo-500 to-gray-200 dark:to-gray-700 opacity-60"></div>
-                            
-                            <div className="relative shrink-0 mt-1.5">
-                                <div className="size-4 rounded-full bg-[#2513ec] dark:bg-indigo-500 border-4 border-white dark:border-gray-800 relative z-10 shadow-md group-hover:scale-125 transition-transform"></div>
-                            </div>
-                            
-                            <div className="pb-2">
-                                <h4 className="text-[15px] font-[900] text-[#111827] dark:text-white mb-1 tracking-tight">Software Engineer Intern</h4>
-                                <div className="flex items-center gap-2 mb-3">
-                                    <span className="text-[11px] font-[900] text-gray-400 dark:text-gray-500 uppercase tracking-wider">Big Tech Co</span>
-                                    <span className="size-1 rounded-full bg-gray-300 dark:bg-gray-600"></span>
-                                    <span className="text-[11px] font-[900] text-gray-400 dark:text-gray-500 uppercase tracking-wider">6 months</span>
-                                </div>
-                                <p className="text-[13px] font-medium text-gray-500 dark:text-gray-400 leading-relaxed opacity-90">
-                                    Worked on the Video Ads Ranking team improving ML pipelines using massive-scale distributed training models.
-                                </p>
                             </div>
                         </div>
                     </div>
 
                 </div>
             </div>
+            )}
+
+            {activeTab === 'Timeline' && (
+                <div className="flex flex-col gap-8 animate-in fade-in duration-500">
+                    
+                    {/* Header Action */}
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
+                        <div className="absolute right-0 top-0 w-64 h-full bg-gradient-to-l from-blue-50/50 dark:from-blue-900/10 to-transparent pointer-events-none"></div>
+                        <div>
+                            <h2 className="text-[22px] font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                                <Activity className="size-5 text-blue-600" /> Career Journey
+                            </h2>
+                            <p className="text-[14px] text-slate-500 mt-1 max-w-xl">
+                                Track your academic milestones, internships, and projects chronologically. Our AI uses this data to automatically craft ATS-optimized resume sections.
+                            </p>
+                        </div>
+                        <button 
+                            onClick={() => setActiveTab('Data Hub')}
+                            className="shrink-0 px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-medium rounded-xl transition-all shadow-sm flex items-center gap-2 text-[14px]"
+                        >
+                            <span className="material-symbols-outlined text-[18px]">add</span> Add Experience
+                        </button>
+                    </div>
+
+                    {/* Timeline Container */}
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-10 border border-slate-200 dark:border-slate-800 shadow-sm">
+                        
+                        <div className="relative">
+                            {/* Main Vertical Track */}
+                            <div className="absolute left-[23px] top-4 bottom-8 w-1 bg-slate-100 dark:bg-slate-800 rounded-full"></div>
+
+                            {/* 2024 Header */}
+                            <div className="flex items-center gap-4 mb-8">
+                                <div className="bg-white dark:bg-slate-900 z-10 font-bold text-slate-900 dark:text-white text-[18px] py-1">2024</div>
+                                <div className="h-px bg-slate-200 dark:bg-slate-800 flex-1"></div>
+                            </div>
+
+                            {/* Item: Internship */}
+                            <div className="flex gap-6 relative z-10 group mb-10">
+                                <div className="mt-1 size-[48px] rounded-full bg-blue-50 dark:bg-blue-900/30 border-4 border-white dark:border-slate-900 flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-110">
+                                    <Briefcase className="size-5 text-blue-600 dark:text-blue-400" />
+                                </div>
+                                <div className="flex-1">
+                                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm hover:shadow-md transition-shadow">
+                                        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-2 mb-3">
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <span className="text-[11px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded uppercase tracking-wider">Internship</span>
+                                                    <span className="text-[13px] text-slate-500 font-medium">Summer 2024</span>
+                                                </div>
+                                                <h3 className="text-[18px] font-bold text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors">Software Engineer Intern</h3>
+                                                <p className="text-[14px] text-slate-600 dark:text-slate-400 font-medium font-display mt-0.5">Microsoft • Seattle, WA</p>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <button className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"><span className="material-symbols-outlined text-[18px]">edit</span></button>
+                                            </div>
+                                        </div>
+                                        <p className="text-[14px] text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
+                                            Engineered scalable microservices for Azure Core using C# and .NET. Reduced API latency by 30% through advanced Redis caching mechanisms.
+                                        </p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {['C#', '.NET Core', 'Azure', 'Redis'].map(tag => (
+                                                <span key={tag} className="text-[12px] font-medium text-slate-600 dark:text-slate-400 px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                                                    {tag}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Item: Semester */}
+                            <div className="flex gap-6 relative z-10 group mb-10">
+                                <div className="mt-1 size-[48px] rounded-full bg-emerald-50 dark:bg-emerald-900/30 border-4 border-white dark:border-slate-900 flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-110">
+                                    <GraduationCap className="size-5 text-emerald-600 dark:text-emerald-400" />
+                                </div>
+                                <div className="flex-1">
+                                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm hover:shadow-md transition-shadow">
+                                        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-2 mb-3">
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded uppercase tracking-wider">Academic</span>
+                                                    <span className="text-[13px] text-slate-500 font-medium">Spring 2024</span>
+                                                </div>
+                                                <h3 className="text-[18px] font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 transition-colors">Semester 6 Completed</h3>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[16px] font-bold text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">GPA: 9.4</span>
+                                                <button className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors"><span className="material-symbols-outlined text-[18px]">edit</span></button>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-wrap gap-2 mt-2">
+                                            <span className="text-[12px] font-medium text-slate-600 dark:text-slate-400 px-3 py-1 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800">Advanced Algorithms: A+</span>
+                                            <span className="text-[12px] font-medium text-slate-600 dark:text-slate-400 px-3 py-1 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800">Operating Systems: A</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 2023 Header */}
+                            <div className="flex items-center gap-4 mb-8">
+                                <div className="bg-white dark:bg-slate-900 z-10 font-bold text-slate-900 dark:text-white text-[18px] py-1">2023</div>
+                                <div className="h-px bg-slate-200 dark:bg-slate-800 flex-1"></div>
+                            </div>
+
+                            {/* Item: Hackathon / Project */}
+                            <div className="flex gap-6 relative z-10 group mb-4">
+                                <div className="mt-1 size-[48px] rounded-full bg-purple-50 dark:bg-purple-900/30 border-4 border-white dark:border-slate-900 flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-110">
+                                    <Activity className="size-5 text-purple-600 dark:text-purple-400" />
+                                </div>
+                                <div className="flex-1">
+                                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm hover:shadow-md transition-shadow">
+                                        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-2 mb-3">
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <span className="text-[11px] font-bold text-purple-600 bg-purple-50 dark:bg-purple-900/30 px-2 py-0.5 rounded uppercase tracking-wider">Project / Hackathon</span>
+                                                    <span className="text-[13px] text-slate-500 font-medium">Nov 2023</span>
+                                                </div>
+                                                <h3 className="text-[18px] font-bold text-slate-900 dark:text-white group-hover:text-purple-600 transition-colors">AI Resume Parser</h3>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <button className="p-2 text-slate-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-colors"><span className="material-symbols-outlined text-[18px]">edit</span></button>
+                                            </div>
+                                        </div>
+                                        <p className="text-[14px] text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
+                                            Won 1st Place at University Hackathon. Built a multi-modal parser using OpenAI GPT-4 to extract structured data from complex PDF/Word formats, achieving a 91% accuracy rate.
+                                        </p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {['Python', 'FastAPI', 'React', 'OpenAI'].map(tag => (
+                                                <span key={tag} className="text-[12px] font-medium text-slate-600 dark:text-slate-400 px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                                                    {tag}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* Baseline Indicator */}
+                            <div className="flex gap-6 relative z-10 group pl-1.5 mt-8">
+                                <div className="size-3 rounded-full bg-slate-300 dark:bg-slate-600 border-2 border-white dark:border-slate-900"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {activeTab === 'Data Hub' && (
+                <div className="flex flex-col gap-8 animate-in fade-in duration-500">
+                    
+                    {/* Header Action */}
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
+                        <div className="absolute right-0 top-0 w-64 h-full bg-gradient-to-l from-emerald-50/50 dark:from-emerald-900/10 to-transparent pointer-events-none"></div>
+                        <div>
+                            <h2 className="text-[22px] font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                                <Briefcase className="size-5 text-emerald-600" /> Smart Data Hub
+                            </h2>
+                            <p className="text-[14px] text-slate-500 mt-1 max-w-xl">
+                                Provide your raw experiences below. Our AI converts them into ATS-friendly bullets, quantifies your impact, and updates your Career Timeline automatically.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        
+                        {/* Box 1: Academics */}
+                        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-shadow">
+                            <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
+                                <div className="flex items-center gap-3">
+                                    <div className="size-10 rounded-xl bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-800/30 flex items-center justify-center text-orange-600">
+                                        <GraduationCap className="size-5" />
+                                    </div>
+                                    <h3 className="text-[16px] font-bold text-slate-900 dark:text-white">Academics</h3>
+                                </div>
+                                <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[11px] font-bold px-2.5 py-1 rounded-md">6 Entries</span>
+                            </div>
+                            <div className="p-6 flex-1 flex flex-col justify-between">
+                                <p className="text-[14px] text-slate-600 dark:text-slate-400 mb-6 font-medium leading-relaxed">
+                                    Log semester GPAs, relevant coursework, awards, and extracurricular leadership roles.
+                                </p>
+                                <button className="w-full bg-white dark:bg-slate-900 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-orange-500 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/10 text-slate-600 dark:text-slate-400 font-medium py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-[14px]">
+                                    <span className="material-symbols-outlined text-[20px]">add</span> Add Semester Record
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Box 2: Projects */}
+                        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-shadow relative">
+                            {/* AI Glow Effect */}
+                            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-purple-500 to-blue-500"></div>
+                            
+                            <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
+                                <div className="flex items-center gap-3">
+                                    <div className="size-10 rounded-xl bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800/30 flex items-center justify-center text-purple-600">
+                                        <Github className="size-5" />
+                                    </div>
+                                    <h3 className="text-[16px] font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                        Projects <span className="text-[10px] bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-2 py-0.5 rounded uppercase tracking-wider font-bold">AI Active</span>
+                                    </h3>
+                                </div>
+                                <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[11px] font-bold px-2.5 py-1 rounded-md">2 Entries</span>
+                            </div>
+                            <div className="p-6 flex-1 flex flex-col justify-between">
+                                <p className="text-[14px] text-slate-600 dark:text-slate-400 mb-6 font-medium leading-relaxed">
+                                    Paste a GitHub repo link and let our AI extract the tech stack and formulate impact bullet points.
+                                </p>
+                                <button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 text-[14px]">
+                                    <span className="material-symbols-outlined text-[20px] font-light">magic_button</span> Auto-import Project
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Box 3: Experience */}
+                        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-shadow">
+                            <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
+                                <div className="flex items-center gap-3">
+                                    <div className="size-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30 flex items-center justify-center text-blue-600">
+                                        <Briefcase className="size-5" />
+                                    </div>
+                                    <h3 className="text-[16px] font-bold text-slate-900 dark:text-white">Experience</h3>
+                                </div>
+                                <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[11px] font-bold px-2.5 py-1 rounded-md">2 Entries</span>
+                            </div>
+                            <div className="p-6 flex-1 flex flex-col justify-between">
+                                <p className="text-[14px] text-slate-600 dark:text-slate-400 mb-6 font-medium leading-relaxed">
+                                    Add your internships, contract roles, and full-time positions. Answer a few questions about your impact.
+                                </p>
+                                <button className="w-full bg-white dark:bg-slate-900 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/10 text-slate-600 dark:text-slate-400 font-medium py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-[14px]">
+                                    <span className="material-symbols-outlined text-[20px]">add</span> Add Experience
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    {/* Interactive Skeleton View for adding a Project (Open State) */}
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 border border-purple-200 dark:border-purple-900/50 shadow-sm relative mt-4">
+                        <div className="flex justify-between items-start mb-6">
+                            <div>
+                                <h3 className="text-[18px] font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-purple-600 text-[20px]">auto_awesome</span> Smart Project Importer
+                                </h3>
+                                <p className="text-[14px] text-slate-500 mt-1">Paste a URL or describe your project. We'll generate the ATS bullets.</p>
+                            </div>
+                            <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"><span className="material-symbols-outlined">close</span></button>
+                        </div>
+
+                        <div className="space-y-5">
+                            <div>
+                                <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">GitHub Repository URL (Optional)</label>
+                                <input type="text" placeholder="https://github.com/username/project" className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-purple-500/50" />
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div>
+                                    <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Project Name <span className="text-red-500">*</span></label>
+                                    <input type="text" placeholder="e.g. Distributed Task Queue" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-purple-500/50" />
+                                </div>
+                                <div>
+                                    <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Completion Date</label>
+                                    <input type="month" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-purple-500/50" />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Raw Description</label>
+                                <textarea rows="3" placeholder="I built this project using Node and Redis to handle lots of messages fast..." className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-[14px] focus:outline-none focus:ring-2 focus:ring-purple-500/50 resize-none"></textarea>
+                                <p className="text-[12px] text-slate-500 mt-1.5 flex items-center gap-1"><span className="material-symbols-outlined text-[14px] text-purple-600">info</span> Don't worry about formatting. Write naturally, the AI will restructure it.</p>
+                            </div>
+
+                            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
+                                <button className="px-5 py-2.5 text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors text-[14px]">Cancel</button>
+                                <button className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-xl transition-colors shadow-sm text-[14px] flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-[18px]">magic_button</span> Generate ATS Record
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            )}
+
+            {activeTab === 'Resume Studio' && (
+                <div className="flex flex-col gap-8 animate-in fade-in duration-500">
+                    
+                    {/* Header Action */}
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
+                        <div className="absolute right-0 top-0 w-64 h-full bg-gradient-to-l from-indigo-50/50 dark:from-indigo-900/10 to-transparent pointer-events-none"></div>
+                        <div>
+                            <h2 className="text-[22px] font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                                <Download className="size-5 text-indigo-600" /> Resume Generation Studio
+                            </h2>
+                            <p className="text-[14px] text-slate-500 mt-1 max-w-xl">
+                                Select specific timeline events to assemble targeted resumes for different roles. Our engine ensures 100% ATS compatibility.
+                            </p>
+                        </div>
+                        <button className="shrink-0 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-all shadow-sm flex items-center gap-2 text-[14px]">
+                            <span className="material-symbols-outlined text-[18px]">add_circle</span> New Version
+                        </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
+                        
+                        {/* Left Column: Saved Versions */}
+                        <div className="xl:col-span-2 flex flex-col gap-6">
+                            
+                            {/* Version 1 */}
+                            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                                <div className="absolute top-0 bottom-0 left-0 w-1.5 bg-indigo-600"></div>
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5 pb-5 border-b border-slate-100 dark:border-slate-800/50">
+                                    <div className="pl-3">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <h3 className="text-[18px] font-bold text-slate-900 dark:text-white">Backend Engineering Focus</h3>
+                                            <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded uppercase tracking-wider">Default</span>
+                                        </div>
+                                        <p className="text-[13px] text-slate-500">Updated 2 days ago • Targets distributed systems roles</p>
+                                    </div>
+                                    <div className="flex items-center gap-2 pl-3 md:pl-0">
+                                        <button className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium rounded-lg transition-colors text-[13px] flex items-center gap-1.5">
+                                            <span className="material-symbols-outlined text-[16px]">edit</span> Edit
+                                        </button>
+                                        <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors text-[13px] flex items-center gap-1.5 shadow-sm">
+                                            <span className="material-symbols-outlined text-[16px]">download</span> PDF
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div className="pl-3 space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2 text-[13px] text-slate-600 dark:text-slate-400 font-medium">
+                                            <ShieldCheck className="size-4 text-emerald-500" /> ATS Match Score
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-48 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                                <div className="bg-emerald-500 h-full rounded-full" style={{width: '94%'}}></div>
+                                            </div>
+                                            <span className="text-[13px] font-bold text-slate-900 dark:text-white">94%</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2 pt-2">
+                                        <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 px-2.5 py-1 rounded-md border border-slate-100 dark:border-slate-800/50">Includes: Microsoft Internship</span>
+                                        <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 px-2.5 py-1 rounded-md border border-slate-100 dark:border-slate-800/50">Includes: Distributed Task Queue</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* Version 2 */}
+                            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5 pb-5 border-b border-slate-100 dark:border-slate-800/50">
+                                    <div>
+                                        <h3 className="text-[18px] font-bold text-slate-900 dark:text-white mb-1">Fullstack Generalist</h3>
+                                        <p className="text-[13px] text-slate-500">Updated 1 month ago • Startup focused</p>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <button className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium rounded-lg transition-colors text-[13px] flex items-center gap-1.5">
+                                            <span className="material-symbols-outlined text-[16px]">edit</span> Edit
+                                        </button>
+                                        <button className="px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium rounded-lg transition-colors text-[13px] flex items-center gap-1.5 shadow-sm">
+                                            <span className="material-symbols-outlined text-[16px]">download</span> PDF
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2 text-[13px] text-slate-600 dark:text-slate-400 font-medium">
+                                            <ShieldCheck className="size-4 text-emerald-500" /> ATS Match Score
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-48 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                                <div className="bg-yellow-500 h-full rounded-full" style={{width: '78%'}}></div>
+                                            </div>
+                                            <span className="text-[13px] font-bold text-slate-900 dark:text-white">78%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        {/* Right Column: AI Analyzer */}
+                        <div className="xl:col-span-1 bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 border border-slate-200 dark:border-slate-800 shadow-sm relative">
+                            {/* Decorative Grid Background */}
+                            <div className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.08]" style={{backgroundImage: 'radial-gradient(#4f46e5 1px, transparent 1px)', backgroundSize: '20px 20px'}}></div>
+                            
+                            <div className="relative z-10">
+                                <div className="flex items-center gap-2 mb-6">
+                                    <span className="material-symbols-outlined text-indigo-600">document_scanner</span>
+                                    <h3 className="text-[16px] font-bold text-slate-900 dark:text-white tracking-tight">AI Resume Feedback</h3>
+                                </div>
+                                
+                                <p className="text-[13px] text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
+                                    Our parser identifies common failure points in ATS systems. Based on your default resume, here is what you can improve.
+                                </p>
+
+                                <div className="space-y-3">
+                                    <div className="bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-800/30 p-4 rounded-xl flex gap-3 items-start">
+                                        <span className="material-symbols-outlined text-orange-600 text-[18px] mt-0.5">warning</span>
+                                        <div>
+                                            <h4 className="text-[13px] font-bold text-slate-900 dark:text-white mb-1">Missing Action Verbs</h4>
+                                            <p className="text-[12px] text-slate-600 dark:text-slate-400">Replace "worked on" with stronger verbs like "engineered" or "architected" in the Contract Developer role.</p>
+                                        </div>
+                                    </div>
+                                    <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800/30 p-4 rounded-xl flex gap-3 items-start">
+                                        <span className="material-symbols-outlined text-blue-600 text-[18px] mt-0.5">lightbulb</span>
+                                        <div>
+                                            <h4 className="text-[13px] font-bold text-slate-900 dark:text-white mb-1">Quantify Impact</h4>
+                                            <p className="text-[12px] text-slate-600 dark:text-slate-400">You mentioned improving API latency. By how much? Add a percentage to increase recruiter interest.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button className="w-full mt-6 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 font-medium py-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 text-[13px]">
+                                    <span className="material-symbols-outlined text-[18px]">auto_fix</span> Auto-Fix Issues
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 };

@@ -1,4 +1,3 @@
-
 import {
     TrendingUp,
     Terminal,
@@ -13,144 +12,248 @@ import {
     PlayCircle,
     ArrowRight,
     Award,
-    Code
+    Code,
+    Timer,
+    Zap,
+    Flag,
+    Rocket
 } from 'lucide-react';
 
 const Roadmap = () => {
     return (
         <div className="max-w-[1440px] mx-auto pb-24 relative transition-colors">
             {/* Background Decor */}
-            <div className="fixed top-[-10%] left-[-5%] size-[500px] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none -z-10"></div>
-            <div className="fixed bottom-[5%] right-[0%] size-[400px] bg-indigo-600/10 blur-[100px] rounded-full pointer-events-none -z-10"></div>
+            <div className="fixed top-[-10%] left-[-5%] size-[500px] bg-indigo-600/10 blur-[150px] rounded-full pointer-events-none -z-10"></div>
+            <div className="fixed bottom-[5%] right-[0%] size-[500px] bg-purple-600/10 blur-[150px] rounded-full pointer-events-none -z-10"></div>
 
             <div className="grid grid-cols-12 gap-8">
                 {/* Main Journey Content */}
                 <div className="col-span-12 lg:col-span-8 flex flex-col">
-
-                    {/* Header Stats */}
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 bg-white/5 dark:bg-gray-800/40 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700 p-6 rounded-[2rem] shadow-sm">
-                        <div>
-                            <span className="text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-widest">Active Journey</span>
-                            <h2 className="text-3xl font-[900] mt-1 text-gray-900 dark:text-white">Software Engineering</h2>
-                            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1 font-medium">Estimated completion: December 2024</p>
-                        </div>
-                        <div className="flex items-center gap-6">
-                            <div className="flex flex-col items-end">
-                                <p className="text-gray-400 dark:text-gray-500 text-xs font-bold uppercase">Real-time Readiness</p>
-                                <p className="text-3xl font-[900] text-emerald-500">78% <span className="text-sm font-bold text-emerald-600/70 dark:text-emerald-400 ml-1">+5% this week</span></p>
-                            </div>
-                            <div className="relative size-16">
-                                <svg className="size-full -rotate-90" viewBox="0 0 36 36">
-                                    <path className="text-gray-100 dark:text-gray-700" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3" />
-                                    <path className="text-emerald-500" strokeDasharray="78, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-                                </svg>
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <TrendingUp className="size-6 text-emerald-500" />
+                    
+                    {/* Next Recommended Action (High Visibility) */}
+                    <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-8 rounded-[2.5rem] shadow-xl shadow-blue-500/20 mb-12 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 blur-3xl rounded-full -mr-32 -mt-32 transition-transform group-hover:scale-110 duration-1000"></div>
+                        
+                        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-2">
+                                    <span className="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-black text-white uppercase tracking-wider">Recommended Next Step</span>
+                                    <span className="flex items-center gap-1 text-blue-100 text-[10px] font-bold">
+                                        <Timer className="size-3" /> 2h estimated
+                                    </span>
                                 </div>
+                                <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">Master Node.js Authentication</h2>
+                                <p className="text-blue-100/80 text-sm font-medium max-w-md leading-relaxed">
+                                    Unlock "Backend Developer" roles by mastering JWT and specialized middleware patterns.
+                                </p>
                             </div>
+                            <button className="bg-white text-blue-600 px-8 py-4 rounded-3xl font-black text-[15px] shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-3 shrink-0">
+                                <Rocket className="size-5" /> Start Learning Now
+                            </button>
                         </div>
                     </div>
 
+                    {/* Journey Stats Dashboard */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+                        {[
+                            { label: 'Overall Readiness', val: '78%', sub: '+5% this week', color: 'text-emerald-500', icon: Rocket },
+                            { label: 'Level', val: 'LVL 3', sub: 'Pro Developer', color: 'text-blue-500', icon: Zap },
+                            { label: 'Career XP', val: '12,450', sub: '+400 today', color: 'text-purple-500', icon: Sparkles },
+                            { label: 'Modules', val: '24/36', sub: 'Done', color: 'text-orange-500', icon: Flag }
+                        ].map((stat, i) => (
+                            <div key={i} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl shadow-sm transition-all hover:border-blue-200 dark:hover:border-blue-500">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <div className={`size-8 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center ${stat.color}`}>
+                                        <stat.icon className="size-4" />
+                                    </div>
+                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-tight">{stat.label}</span>
+                                </div>
+                                <p className="text-2xl font-black text-slate-900 dark:text-white">{stat.val}</p>
+                                <p className={`text-[10px] font-bold mt-1 ${stat.color}`}>{stat.sub}</p>
+                            </div>
+                        ))}
+                    </div>
+
                     {/* Snake Journey Area */}
-                    <div className="relative min-h-[1000px] flex flex-col items-center">
-                        {/* SVG Path */}
+                    <div className="relative min-h-[1200px] flex flex-col items-center">
+                        {/* SVG Path (Vibrant Gradient) */}
                         <svg className="absolute top-0 left-1/2 -translate-x-1/2 z-0 w-[600px] h-full pointer-events-none hidden md:block" fill="none" viewBox="0 0 600 1200">
                             <defs>
                                 <linearGradient id="pathGradient" x1="300" y1="0" x2="300" y2="1200" gradientUnits="userSpaceOnUse">
                                     <stop stopColor="#2563eb" />
-                                    <stop offset="0.5" stopColor="#2563eb" stopOpacity="0.5" />
-                                    <stop offset="1" stopColor="#e5e7eb" stopOpacity="0.2" />
+                                    <stop offset="0.5" stopColor="#8b5cf6" />
+                                    <stop offset="1" stopColor="#3b82f6" strokeOpacity="0.3" />
                                 </linearGradient>
                             </defs>
-                            <path d="M300 0V150C300 150 300 250 100 250C-100 250 100 450 300 450C500 450 700 650 500 650C300 650 100 650 100 850C100 1050 300 1050 300 1200" stroke="url(#pathGradient)" strokeWidth="4" strokeDasharray="12 12" />
+                            <path d="M300 0V150C300 150 300 250 100 250C-100 250 100 450 300 450C500 450 700 650 500 650C300 650 100 650 100 850C100 1050 300 1050 300 1200" stroke="url(#pathGradient)" strokeWidth="6" strokeDasharray="16 16" />
                         </svg>
 
-                        {/* Phase 1 */}
-                        <div className="relative z-10 w-full flex flex-col items-center gap-12 mb-24">
-                            <div className="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800/50 text-emerald-600 dark:text-emerald-400 px-4 py-1.5 rounded-full text-xs font-[900] uppercase tracking-wide shadow-sm">
-                                Phase 1: Foundations (Completed)
+                        {/* Phase 1: Completed Foundations */}
+                        <div className="relative z-10 w-full flex flex-col items-center gap-10 mb-32">
+                            <div className="px-6 py-2 bg-emerald-500 text-white rounded-full text-[11px] font-black uppercase tracking-[0.2em] shadow-lg shadow-emerald-500/20">
+                                Phase 1: The Core Foundations
                             </div>
-                            <div className="flex flex-wrap justify-center gap-16">
-                                {/* DSA Node */}
-                                <div className="group relative flex flex-col items-center cursor-pointer">
-                                    <div className="size-24 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center border-4 border-emerald-100 dark:border-emerald-900/50 shadow-xl shadow-emerald-100/50 dark:shadow-none transition-transform group-hover:scale-110">
-                                        <Terminal className="size-8 text-emerald-600 dark:text-emerald-400" />
-                                        <div className="absolute -top-1 -right-1 size-8 bg-emerald-500 rounded-full flex items-center justify-center border-4 border-white dark:border-gray-800">
-                                            <Check className="size-4 text-white stroke-[4]" />
+                            
+                            <div className="flex flex-wrap justify-center gap-12">
+                                {/* DSA Interactive Card */}
+                                <div className="w-[280px] bg-white dark:bg-slate-900 rounded-[2rem] p-6 border-2 border-emerald-500 shadow-xl shadow-emerald-500/5 relative group cursor-pointer hover:-translate-y-2 transition-all">
+                                    <div className="absolute -top-3 -right-3 size-10 bg-emerald-500 rounded-full flex items-center justify-center border-4 border-white dark:border-slate-800 text-white shadow-lg">
+                                        <Check className="size-5 stroke-[4]" />
+                                    </div>
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="size-12 bg-emerald-50 dark:bg-emerald-900/30 rounded-2xl flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                                            <Terminal className="size-6" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-black text-slate-900 dark:text-white leading-tight">Data Structures</h4>
+                                            <p className="text-[10px] font-bold text-emerald-600 uppercase">Mastered</p>
                                         </div>
                                     </div>
-                                    <p className="mt-4 font-bold text-gray-900 dark:text-white text-sm">Data Structures</p>
+                                    <div className="space-y-2 mb-4">
+                                        {['Arrays & Lists', 'Trees & Graphs', 'O(n) Analysis'].map(tag => (
+                                            <div key={tag} className="flex items-center gap-2 text-[11px] font-bold text-slate-500">
+                                                <div className="size-1 rounded-full bg-emerald-500"></div> {tag}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button className="w-full py-3 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-[11px] font-black rounded-xl hover:bg-slate-100 transition-colors uppercase">Review Topics</button>
                                 </div>
-                                {/* OS Node */}
-                                <div className="group relative flex flex-col items-center cursor-pointer">
-                                    <div className="size-24 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center border-4 border-emerald-100 dark:border-emerald-900/50 shadow-xl shadow-emerald-100/50 dark:shadow-none transition-transform group-hover:scale-110">
-                                        <Code className="size-8 text-emerald-600 dark:text-emerald-400" />
-                                        <div className="absolute -top-1 -right-1 size-8 bg-emerald-500 rounded-full flex items-center justify-center border-4 border-white dark:border-gray-800">
-                                            <Check className="size-4 text-white stroke-[4]" />
+
+                                {/* OS Interactive Card */}
+                                <div className="w-[280px] bg-white dark:bg-slate-900 rounded-[2rem] p-6 border-2 border-emerald-500 shadow-xl shadow-emerald-500/5 relative group cursor-pointer hover:-translate-y-2 transition-all">
+                                    <div className="absolute -top-3 -right-3 size-10 bg-emerald-500 rounded-full flex items-center justify-center border-4 border-white dark:border-slate-800 text-white shadow-lg">
+                                        <Check className="size-5 stroke-[4]" />
+                                    </div>
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="size-12 bg-emerald-50 dark:bg-emerald-900/30 rounded-2xl flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                                            <Code className="size-6" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-black text-slate-900 dark:text-white leading-tight">Operating Systems</h4>
+                                            <p className="text-[10px] font-bold text-emerald-600 uppercase">Mastered</p>
                                         </div>
                                     </div>
-                                    <p className="mt-4 font-bold text-gray-900 dark:text-white text-sm">Operating Systems</p>
+                                    <div className="space-y-2 mb-4">
+                                        {['Processes', 'Memory Magmt', 'File Systems'].map(tag => (
+                                            <div key={tag} className="flex items-center gap-2 text-[11px] font-bold text-slate-500">
+                                                <div className="size-1 rounded-full bg-emerald-500"></div> {tag}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button className="w-full py-3 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-[11px] font-black rounded-xl hover:bg-slate-100 transition-colors uppercase">Review Topics</button>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Phase 2 */}
-                        <div className="relative z-10 w-full flex flex-col items-center gap-12 mb-24">
-                            <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800/50 text-blue-600 dark:text-blue-400 px-4 py-1.5 rounded-full text-xs font-[900] uppercase tracking-wide shadow-sm">
-                                Phase 2: Specialization (In-Progress)
+                        {/* Phase 2: Active Specialization */}
+                        <div className="relative z-10 w-full flex flex-col items-center gap-10 mb-32">
+                            <div className="px-6 py-2 bg-blue-600 text-white rounded-full text-[11px] font-black uppercase tracking-[0.2em] shadow-lg shadow-blue-500/20">
+                                Phase 2: Professional Specialization
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-24 w-full max-w-2xl px-10">
-                                {/* MERN Node (Active) */}
-                                <div className="relative flex flex-col items-center cursor-pointer">
-                                    <div className="relative">
-                                        <div className="absolute inset-0 rounded-full border-4 border-blue-500/30 animate-ping"></div>
-                                        <div className="size-36 rounded-full bg-white dark:bg-gray-800 flex flex-col items-center justify-center border-4 border-blue-600 dark:border-blue-500 shadow-2xl shadow-blue-600/30 dark:shadow-none z-10 relative">
-                                            <Layers className="size-10 text-blue-600 dark:text-blue-400 mb-1" />
-                                            <span className="text-2xl font-[900] text-gray-900 dark:text-white">65%</span>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-16 w-full max-w-4xl px-10">
+                                {/* MERN Active Journey Card */}
+                                <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border-4 border-blue-600 shadow-2xl shadow-blue-500/10 relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 w-24 h-24 bg-blue-600/5 rotate-45 -mr-12 -mt-12 group-hover:scale-150 transition-transform"></div>
+                                    
+                                    <div className="flex justify-between items-start mb-6">
+                                        <div className="size-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
+                                            <Layers className="size-8" />
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Journey</p>
+                                            <h3 className="text-2xl font-black text-slate-900 dark:text-white">MERN Stack</h3>
                                         </div>
                                     </div>
-                                    <div className="mt-6 text-center">
-                                        <p className="font-[900] text-xl text-gray-900 dark:text-white">MERN Stack</p>
-                                        <p className="text-gray-400 dark:text-gray-500 text-xs font-bold mb-3">8/12 Modules Completed</p>
-                                        <button className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-3 py-1.5 rounded-lg font-bold flex items-center mx-auto gap-1 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors">
-                                            CONTINUE LESSON <ArrowRight className="size-3" />
-                                        </button>
+                                    
+                                    <div className="mb-8">
+                                        <div className="flex justify-between text-[11px] font-black text-slate-900 dark:text-white mb-2 uppercase">
+                                            <span>Progress</span>
+                                            <span>65%</span>
+                                        </div>
+                                        <div className="h-3 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                            <div className="h-full bg-blue-600 rounded-full transition-all duration-1000" style={{ width: '65%' }}></div>
+                                        </div>
+                                        <p className="text-[10px] font-bold text-slate-500 mt-2">Finish Node.js Auth to reach 75%</p>
                                     </div>
+
+                                    <div className="space-y-3 mb-8">
+                                        {[
+                                            { label: 'React Basics', done: true },
+                                            { label: 'REST APIs', done: true },
+                                            { label: 'Authentication', done: false },
+                                            { label: 'Deployment', done: false }
+                                        ].map(mod => (
+                                            <div key={mod.label} className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-transparent hover:border-blue-100 transition-all">
+                                                <span className={`text-xs font-bold ${mod.done ? 'text-slate-400 line-through' : 'text-slate-900 dark:text-white'}`}>{mod.label}</span>
+                                                {mod.done ? (
+                                                    <Check className="size-4 text-emerald-500 font-bold" />
+                                                ) : (
+                                                    <span className="text-[10px] font-black text-blue-600 uppercase">Current</span>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <button className="w-full py-4 bg-blue-600 text-white font-black rounded-2xl shadow-lg hover:scale-105 active:scale-95 transition-all text-[15px] flex items-center justify-center gap-2">
+                                        Continue Learning <ArrowRight className="size-4" />
+                                    </button>
                                 </div>
 
-                                {/* Cloud Node */}
-                                <div className="group relative flex flex-col items-center cursor-pointer opacity-80 hover:opacity-100 transition-opacity">
-                                    <div className="size-36 rounded-full bg-white dark:bg-gray-800 flex flex-col items-center justify-center border-4 border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 transition-colors">
-                                        <Cloud className="size-10 text-gray-400 dark:text-gray-500 mb-1" />
-                                        <span className="text-2xl font-bold text-gray-300 dark:text-gray-600">12%</span>
+                                {/* Cloud Interactive Journey Card */}
+                                <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border-2 border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-500/5 relative overflow-hidden flex flex-col">
+                                    <div className="flex justify-between items-start mb-6">
+                                        <div className="size-14 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-400">
+                                            <Cloud className="size-8" />
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Secondary Goal</p>
+                                            <h3 className="text-2xl font-black text-slate-900 dark:text-white">Cloud Systems</h3>
+                                        </div>
                                     </div>
-                                    <div className="mt-6 text-center">
-                                        <p className="font-bold text-xl text-gray-500 dark:text-gray-400">Cloud Computing</p>
-                                        <p className="text-gray-300 dark:text-gray-600 text-xs font-bold">2/15 Modules Completed</p>
+
+                                    <div className="mb-8">
+                                        <div className="flex justify-between text-[11px] font-black text-slate-400 mb-2 uppercase">
+                                            <span>Progress</span>
+                                            <span>12%</span>
+                                        </div>
+                                        <div className="h-3 w-full bg-slate-50 dark:bg-slate-800 rounded-full overflow-hidden">
+                                            <div className="h-full bg-slate-200 dark:bg-slate-700 rounded-full" style={{ width: '12%' }}></div>
+                                        </div>
                                     </div>
+
+                                    <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-2xl border border-blue-100 dark:border-blue-800/50 mb-8 mt-auto">
+                                        <p className="text-[10px] font-black text-blue-600 uppercase mb-1">Why learn this?</p>
+                                        <p className="text-xs text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
+                                            Cloud knowledge increases backend salary prospects by **25%** in current job markets.
+                                        </p>
+                                    </div>
+
+                                    <button className="w-full py-4 border-2 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-black rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-[15px]">Resume Journey</button>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Phase 3 */}
-                        <div className="relative z-10 w-full flex flex-col items-center gap-12 pb-32">
-                            <div className="bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 px-4 py-1.5 rounded-full text-xs font-[900] uppercase tracking-wide">
-                                Phase 3: Career Readiness (Locked)
+                        {/* Phase 3: Career Readiness (Vibrant Locked State) */}
+                        <div className="relative z-10 w-full flex flex-col items-center gap-10">
+                            <div className="px-6 py-2 bg-indigo-600 text-white rounded-full text-[11px] font-black uppercase tracking-[0.2em] shadow-lg shadow-indigo-500/20">
+                                Phase 3: Total Career Readiness
                             </div>
-                            <div className="flex flex-wrap justify-center gap-16 ">
-                                {/* Locked Nodes */}
+                            
+                            <div className="flex flex-wrap justify-center gap-10">
                                 {[
-                                    { icon: 'description', label: 'Resume Builder' },
-                                    { icon: 'forum', label: 'Mock Interviews' }
+                                    { icon: 'description', label: 'Pro Resume Studio', unlock: 'Finish MERN' },
+                                    { icon: 'forum', label: 'AI Mock Interviews', unlock: 'Finish MERN' }
                                 ].map((node, i) => (
-                                    <div key={i} className="flex flex-col items-center grayscale opacity-60">
-                                        <div className="size-24 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center border-4 border-gray-100 dark:border-gray-700 relative">
-                                            <span className="material-symbols-outlined text-4xl text-gray-300 dark:text-gray-600">{node.icon}</span>
-                                            <div className="absolute -top-1 -right-1 size-8 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center border-4 border-white dark:border-gray-800">
-                                                <Lock className="size-4 text-gray-500 dark:text-gray-400" />
+                                    <div key={i} className="w-[200px] flex flex-col items-center text-center">
+                                        <div className="size-24 rounded-3xl bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 flex items-center justify-center relative shadow-lg">
+                                            <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600">{node.icon}</span>
+                                            <div className="absolute -top-3 -right-3 size-10 bg-indigo-600 rounded-full flex items-center justify-center border-4 border-white dark:border-slate-800 text-white shadow-xl">
+                                                <Lock className="size-5" />
                                             </div>
                                         </div>
-                                        <p className="mt-4 font-bold text-gray-400 dark:text-gray-500 text-sm">{node.label}</p>
+                                        <p className="mt-4 font-black text-slate-900 dark:text-white text-sm">{node.label}</p>
+                                        <p className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-tighter">Requires: {node.unlock}</p>
                                     </div>
                                 ))}
                             </div>
@@ -158,123 +261,169 @@ const Roadmap = () => {
                     </div>
                 </div>
 
-                {/* Right Sidebar Widgets */}
+                {/* Right Sidebar: Dynamic Intelligence */}
                 <aside className="col-span-12 lg:col-span-4 flex flex-col gap-6 lg:sticky lg:top-24 h-fit">
-
-                    {/* AI Mentor Widget */}
-                    <div className="bg-white dark:bg-gray-800 rounded-[2rem] overflow-hidden border border-gray-100 dark:border-gray-700 shadow-xl shadow-indigo-100/50 dark:shadow-none transition-colors">
-                        <div className="bg-indigo-600 dark:bg-indigo-500 p-5 flex items-center gap-3">
-                            <Brain className="size-6 text-white" />
-                            <h3 className="font-bold text-lg text-white">AI Mentor</h3>
+                    
+                    {/* Career Milestones Checklist */}
+                    <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+                        <h3 className="font-black text-lg mb-8 text-slate-900 dark:text-white uppercase tracking-tight">Milestones</h3>
+                        <div className="space-y-6 relative ml-4">
+                            <div className="absolute left-[11px] top-0 bottom-0 w-0.5 bg-slate-100 dark:bg-slate-800"></div>
+                            {[
+                                { label: 'First Pro Project Built', done: true },
+                                { label: 'DSA Fundamentals Mastery', done: true },
+                                { label: 'System Design Project', done: false, next: true },
+                                { label: 'Mock Interview Ready', done: false }
+                            ].map((milestone, i) => (
+                                <div key={i} className="flex items-center gap-6 relative group">
+                                    <div className={`size-6 rounded-full border-4 ${milestone.done ? 'bg-emerald-500 border-emerald-100' : milestone.next ? 'bg-blue-600 border-blue-100 animate-pulse' : 'bg-white border-slate-200'} z-10 shadow-sm`}></div>
+                                    <div className={`flex-1 p-3 rounded-2xl ${milestone.next ? 'bg-blue-600/5 border border-blue-100' : ''}`}>
+                                        <p className={`text-sm font-black ${milestone.done ? 'text-slate-400 line-through' : milestone.next ? 'text-blue-600' : 'text-slate-900 dark:text-white'}`}>{milestone.label}</p>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                        <div className="p-6">
-                            <div className="bg-indigo-50 dark:bg-indigo-900/30 rounded-xl p-4 border border-indigo-100 dark:border-indigo-800/50 mb-4 transition-colors">
-                                <p className="text-xs text-indigo-600 dark:text-indigo-400 font-[900] uppercase mb-2">Nudge of the Week</p>
-                                <p className="text-sm leading-relaxed text-indigo-900 dark:text-indigo-100 font-medium italic">
-                                    "You're making great progress in the MERN path! Focus on mastering <span className="text-indigo-700 dark:text-white font-bold decoration-2 underline decoration-indigo-300 dark:decoration-indigo-500">Node.js Auth</span> next to unlock the Full-Stack Intern roles by July."
-                                </p>
+                    </div>
+
+                    {/* Highly Actionable AI Mentor */}
+                    <div className="bg-indigo-600 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-indigo-500/20 relative group">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-2xl rounded-full -mr-16 -mt-16"></div>
+                        <div className="p-8">
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="size-10 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white">
+                                    <Brain className="size-6" />
+                                </div>
+                                <h3 className="font-black text-lg text-white uppercase tracking-tight">AI Strategy</h3>
                             </div>
-                            <button className="w-full bg-indigo-600 dark:bg-indigo-500 py-3 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-all shadow-lg shadow-indigo-500/25 dark:shadow-none">
-                                Get Detailed Roadmap <Sparkles className="size-4" />
+                            
+                            <p className="text-indigo-100 text-sm font-medium leading-relaxed mb-8">
+                                "To unlock **Full-Stack High-Paying roles**, your next focus must be security and scale."
+                            </p>
+
+                            <div className="space-y-3 mb-8">
+                                {[
+                                    { text: 'Complete Node Auth module', link: 'Continue Learning' },
+                                    { text: 'Build 1 Security-focused project', link: 'View Ideas' },
+                                    { text: 'Deploy to AWS using Docker', link: 'Learn Cloud' }
+                                ].map((task, i) => (
+                                    <button key={i} className="w-full p-4 bg-white/10 hover:bg-white/20 border border-white/10 rounded-2xl text-left transition-all">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <span className="text-[10px] font-black text-indigo-200 uppercase tracking-widest">Plan Item {i+1}</span>
+                                            <ArrowRight className="size-3 text-white" />
+                                        </div>
+                                        <p className="text-white text-xs font-bold">{task.text}</p>
+                                    </button>
+                                ))}
+                            </div>
+
+                            <button className="w-full bg-white text-indigo-600 py-4 rounded-2xl text-sm font-black shadow-lg hover:scale-[1.02] active:scale-95 transition-all">
+                                Update Career Plan
                             </button>
                         </div>
                     </div>
 
-                    {/* Skill Gaps */}
-                    <div className="bg-white dark:bg-gray-800 rounded-[2rem] p-6 border border-gray-100 dark:border-gray-700 shadow-sm transition-colors">
-                        <h3 className="font-bold text-lg mb-6 flex items-center justify-between text-gray-900 dark:text-white">
-                            Skill Gaps
-                            <span className="text-xs text-gray-400 dark:text-gray-500 font-bold">Based on 140+ Jobs</span>
-                        </h3>
-                        <div className="space-y-5">
-                            <div className="space-y-2">
-                                <div className="flex justify-between text-xs font-bold">
-                                    <span className="text-gray-600 dark:text-gray-300">React.js</span>
-                                    <span className="text-emerald-500 dark:text-emerald-400">Expert</span>
+                    {/* Weekly Learning Goals (Gamified) */}
+                    <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="font-black text-lg text-slate-900 dark:text-white uppercase tracking-tight">Weekly Goals</h3>
+                            <span className="text-xs font-black text-blue-600 bg-blue-50 dark:bg-blue-500/10 px-2 py-1 rounded-lg">3/5 DONE</span>
+                        </div>
+                        <div className="space-y-4">
+                            {[
+                                { text: 'Complete Node.js Auth', xp: '+50 XP', done: false },
+                                { text: 'Solve 5 LeetCode problems', xp: '+30 XP', done: true },
+                                { text: 'Update Project README', xp: '+10 XP', done: true },
+                                { text: 'Read System Design article', xp: '+15 XP', done: true },
+                                { text: 'Join Backend Workshop', xp: '+40 XP', done: false }
+                            ].map((goal, i) => (
+                                <div key={i} className="flex items-center gap-3">
+                                    <div className={`size-5 rounded-md flex items-center justify-center border-2 ${goal.done ? 'bg-blue-600 border-blue-600' : 'border-slate-200 dark:border-slate-800'}`}>
+                                        {goal.done && <Check className="size-3 text-white stroke-[4]" />}
+                                    </div>
+                                    <div className="flex-1 flex justify-between items-center">
+                                        <span className={`text-xs font-bold ${goal.done ? 'text-slate-400 line-through' : 'text-slate-900 dark:text-white'}`}>{goal.text}</span>
+                                        <span className="text-[9px] font-black text-blue-500 uppercase">{goal.xp}</span>
+                                    </div>
                                 </div>
-                                <div className="w-full h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                                    <div className="h-full bg-emerald-500 w-[90%] rounded-full"></div>
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <div className="flex justify-between text-xs font-bold">
-                                    <span className="text-gray-600 dark:text-gray-300">Express.js</span>
-                                    <span className="text-blue-500 dark:text-blue-400">Intermediate</span>
-                                </div>
-                                <div className="w-full h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                                    <div className="h-full bg-blue-500 w-[55%] rounded-full"></div>
-                                </div>
-                            </div>
-                            <div className="space-y-2 opacity-60">
-                                <div className="flex justify-between text-xs font-bold">
-                                    <span className="text-gray-600 dark:text-gray-400">Docker</span>
-                                    <span className="text-gray-400 dark:text-gray-500">Locked</span>
-                                </div>
-                                <div className="w-full h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                                    <div className="h-full bg-gray-300 dark:bg-gray-600 w-[5%] rounded-full"></div>
-                                </div>
-                            </div>
+                            ))}
+                        </div>
+                        <div className="mt-8 h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                            <div className="h-full bg-blue-600 rounded-full w-[60%] animate-pulse"></div>
                         </div>
                     </div>
 
-                    {/* Recommended Resources */}
-                    <div className="bg-white dark:bg-gray-800 rounded-[2rem] p-6 border border-gray-100 dark:border-gray-700 shadow-sm transition-colors">
-                        <h3 className="font-bold text-lg mb-4 text-gray-900 dark:text-white">Recommended for You</h3>
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer group">
-                                <div className="size-12 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/50 transition-colors">
-                                    <PlayCircle className="size-6" />
+                    {/* Skill Gaps with Industry Data */}
+                    <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+                        <div className="flex justify-between items-center mb-8">
+                            <h3 className="font-black text-lg text-slate-900 dark:text-white uppercase tracking-tight">Skill Gaps</h3>
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Market Data</span>
+                        </div>
+                        
+                        <div className="space-y-8">
+                            {[
+                                { skill: 'React.js', val: 90, status: 'Expert', demand: '92%', color: 'from-emerald-400 to-emerald-600' },
+                                { skill: 'Express.js', val: 60, status: 'Intermediate', demand: '88%', color: 'from-blue-400 to-blue-600' },
+                                { skill: 'Docker', val: 5, status: 'Not Started', demand: '78%', color: 'from-slate-200 to-slate-300' }
+                            ].map(item => (
+                                <div key={item.skill} className="space-y-3">
+                                    <div className="flex justify-between items-end">
+                                        <div>
+                                            <h4 className="font-black text-slate-900 dark:text-white text-sm">{item.skill}</h4>
+                                            <p className={`text-[10px] font-black uppercase ${item.val > 80 ? 'text-emerald-500' : item.val > 40 ? 'text-blue-500' : 'text-slate-400'}`}>{item.status}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-[10px] font-bold text-slate-500 uppercase">Industry Demand</p>
+                                            <p className="text-sm font-black text-slate-900 dark:text-white">{item.demand}</p>
+                                        </div>
+                                    </div>
+                                    <div className="h-3 w-full bg-slate-50 dark:bg-slate-800 rounded-full overflow-hidden">
+                                        <div className={`h-full bg-gradient-to-r ${item.color} rounded-full transition-all duration-1000`} style={{ width: `${item.val}%` }}></div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Node.js Advanced Patterns</p>
-                                    <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500">45 mins • Video Course</p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer group">
-                                <div className="size-12 bg-emerald-50 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/50 transition-colors">
-                                    <BookOpen className="size-6" />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Cracking the Cloud Cert</p>
-                                    <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500">E-Book • AWS/Azure</p>
-                                </div>
-                            </div>
+                            ))}
+                        </div>
+
+                        <div className="mt-8 p-4 bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-800/50 rounded-2xl">
+                            <p className="text-[10px] font-black text-orange-600 uppercase mb-1 flex items-center gap-1">
+                                <Zap className="size-3" /> Salary Impact Alert
+                            </p>
+                            <p className="text-[11px] text-slate-700 dark:text-slate-300 font-bold leading-relaxed">
+                                Mastering **Docker & Cloud** could increase your entry-level salary offers by up to **22%**.
+                            </p>
                         </div>
                     </div>
                 </aside>
             </div>
 
-            {/* Achievement Bottom Bar (Fixed) */}
-            <div className="fixed bottom-0 left-0 right-0 z-40 h-20 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 px-6 lg:px-20 md:ml-64 transition-colors">
-                <div className="max-w-[1440px] mx-auto h-full flex items-center justify-between gap-8">
-                    <div className="flex items-center gap-3 shrink-0">
-                        <div className="size-10 rounded-full bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-500 border border-amber-100 dark:border-amber-800/50">
-                            <Award className="size-5" />
-                        </div>
-                        <div className="hidden md:block">
-                            <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-tight">Achievements</p>
-                            <p className="text-sm font-[900] text-gray-900 dark:text-white">12 Milestones Unlocked</p>
-                        </div>
+            {/* Achievement Bottom Bar (Premium Floating) */}
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[90%] max-w-[1240px] px-8 h-24 bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl border border-white/20 dark:border-slate-800 rounded-[3rem] shadow-2xl flex items-center justify-between gap-8 md:ml-[128px]">
+                <div className="flex items-center gap-4 shrink-0 px-2">
+                    <div className="size-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center text-white shadow-xl shadow-orange-500/20">
+                        <Award className="size-8 stroke-[2.5]" />
                     </div>
-                    <div className="flex-1 overflow-x-auto no-scrollbar">
-                        <div className="flex items-center gap-4">
-                            {[
-                                { icon: 'hotel_class', label: 'DSA Master', color: 'text-amber-500' },
-                                { icon: 'code', label: '100 Days', color: 'text-emerald-500' },
-                                { icon: 'api', label: 'API Pro', color: 'text-blue-500' },
-                                { icon: 'database', label: 'SQL Expert', color: 'text-indigo-500' },
-                            ].map((badge, i) => (
-                                <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shrink-0">
-                                    <span className={`material-symbols-outlined ${badge.color} text-lg`}>{badge.icon}</span>
-                                    <span className="text-xs font-bold text-gray-600 dark:text-gray-300">{badge.label}</span>
-                                </div>
-                            ))}
-                        </div>
+                    <div>
+                        <p className="text-[11px] text-slate-500 font-black uppercase tracking-[0.1em]">Total Achievements</p>
+                        <p className="text-xl font-black text-slate-900 dark:text-white leading-none">12 Milestones</p>
                     </div>
-                    <button className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-5 py-2 rounded-xl text-sm font-bold hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors shrink-0">
-                        View Gallery
-                    </button>
                 </div>
+
+                <div className="hidden md:flex flex-1 items-center gap-4 overflow-hidden border-x border-slate-100 dark:border-slate-800 px-8">
+                    {[
+                        { icon: 'hotel_class', label: 'DSA Master', color: 'bg-amber-100 text-amber-600' },
+                        { icon: 'code', label: '100 Days', color: 'bg-emerald-100 text-emerald-600' },
+                        { icon: 'api', label: 'API Pro', color: 'bg-blue-100 text-blue-600' },
+                        { icon: 'database', label: 'SQL Expert', color: 'bg-indigo-100 text-indigo-600' },
+                    ].map((badge, i) => (
+                        <div key={i} className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white dark:bg-slate-800 shadow-sm border border-slate-50 dark:border-slate-800 shrink-0 hover:scale-105 transition-all cursor-help">
+                            <span className={`material-symbols-outlined ${badge.color.split(' ')[1]} text-lg`}>{badge.icon}</span>
+                            <span className="text-[11px] font-black text-slate-900 dark:text-white uppercase">{badge.label}</span>
+                        </div>
+                    ))}
+                </div>
+
+                <button className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-8 py-4 rounded-[1.5rem] text-sm font-black shadow-lg hover:translate-y-[-2px] transition-all active:translate-y-0 shrink-0">
+                    Gallery
+                </button>
             </div>
         </div>
     );
