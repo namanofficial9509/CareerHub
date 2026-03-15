@@ -1,4 +1,4 @@
-# Universal Student Hub
+# Universal Carrier Hub
 
 **Universal Student Hub** is a premium, dark-themed React application designed to empower students by streamlining their academic journey and career development. It serves as a central platform for managing profiles, tracking coding achievements, optimizing resumes, and leveraging AI for personalized support.
 
