@@ -1,24 +1,48 @@
 import { useAuth } from '../../context/AuthContext';
+import { useState } from 'react';
 import PortfolioHeader from '../../components/portfolio/PortfolioHeader';
 import TechnicalArsenal from '../../components/portfolio/TechnicalArsenal';
 import ProjectShowcase from '../../components/portfolio/ProjectShowcase';
 
 const Portfolio = () => {
     const { userData } = useAuth();
-    const university = userData?.onboarding?.university || 'University';
-    const course = userData?.onboarding?.course || 'Course';
+    const university = userData?.identity?.college || userData?.onboarding?.university || 'University';
+    const course = userData?.identity?.branch || userData?.onboarding?.course || 'Course';
+    const [copied, setCopied] = useState(false);
+
+    const handleDownload = () => {
+        window.print();
+    };
+
+    const handleShare = async () => {
+        try {
+            await navigator.clipboard.writeText(window.location.href);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2500);
+        } catch {
+            alert('Could not copy link.');
+        }
+    };
 
     return (
         <div className="max-w-[900px] mx-auto relative">
             {/* Download/Share Actions (Floating) */}
             <div className="hidden lg:flex flex-col gap-3 absolute -right-40 top-0">
-                <button className="size-12 bg-gray-900 text-white rounded-xl shadow-lg hover:scale-110 transition-transform flex items-center justify-center group relative cursor-pointer" title="Download PDF">
+                <button
+                    onClick={handleDownload}
+                    className="size-12 bg-gray-900 text-white rounded-xl shadow-lg hover:scale-110 transition-transform flex items-center justify-center group relative cursor-pointer"
+                    title="Download PDF"
+                >
                     <span className="material-symbols-outlined">download</span>
                     <span className="absolute right-full mr-3 bg-gray-800 text-white text-xs font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Download PDF</span>
                 </button>
-                <button className="size-12 bg-white text-gray-600 border border-gray-200 rounded-xl shadow-lg hover:scale-110 transition-transform flex items-center justify-center group relative cursor-pointer" title="Share Link">
-                    <span className="material-symbols-outlined">share</span>
-                    <span className="absolute right-full mr-3 bg-gray-800 text-white text-xs font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Share Link</span>
+                <button
+                    onClick={handleShare}
+                    className="size-12 bg-white text-gray-600 border border-gray-200 rounded-xl shadow-lg hover:scale-110 transition-transform flex items-center justify-center group relative cursor-pointer"
+                    title="Share Link"
+                >
+                    <span className="material-symbols-outlined">{copied ? 'check' : 'share'}</span>
+                    <span className="absolute right-full mr-3 bg-gray-800 text-white text-xs font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">{copied ? 'Copied!' : 'Share Link'}</span>
                 </button>
             </div>
 

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { db } from '../../lib/firebase';
 import { collection, addDoc, serverTimestamp, query, onSnapshot, orderBy } from 'firebase/firestore';
 import { Download, ExternalLink, Share2, CheckCircle2, TrendingUp, Github, Briefcase, GraduationCap, MapPin, Activity, ShieldCheck, Mail, Calendar, Loader2, Sparkles, Target } from 'lucide-react';
+import { calculateIntelligenceScore, calculateSkillLevel } from '../../lib/intelligenceEngine';
 
 const Profile = () => {
     const { user, userData, updateIntelligenceSignal, syncPlatformData } = useAuth();
@@ -15,7 +16,6 @@ const Profile = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [profileSaved, setProfileSaved] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
-    const [lastSynced, setLastSynced] = useState(null);
     const [projectForm, setProjectForm] = useState({
         title: '',
         description: '',
@@ -114,31 +114,8 @@ const Profile = () => {
         }
     };
 
-    // Dummy functions for UI, replace with actual logic if needed
-    const calculateIntelligenceScore = (userData) => {
-        // Example: calculate score based on some user data
-        return userData?.activityStats?.projects ? 85 : 70;
-    };
-
-    const calculateSkillLevel = (metrics) => {
-        // Example: determine skill level
-        return "Advanced";
-    };
-
-    // Background sync on mount
-    useEffect(() => {
-        if (user && userData && !lastSynced) {
-            const syncData = async () => {
-                try {
-                    await syncPlatformData();
-                    setLastSynced(new Date());
-                } catch (err) {
-                    console.error("Auto-sync failed:", err);
-                }
-            };
-            syncData();
-        }
-    }, [user, userData, lastSynced]);
+    // Unified intelligence logic is now imported from intelligenceEngine.js
+    // Background sync is now handled in AuthContext globally
 
     useEffect(() => {
         if (!user) return;
@@ -898,9 +875,9 @@ const Profile = () => {
                                             {isSyncing ? 'Syncing...' : 'Sync Everything'}
                                         </button>
                                         <div className="flex flex-col">
-                                            {lastSynced ? (
+                                            {userData?.lastSynced ? (
                                                 <p className="text-[11px] text-slate-500 font-medium flex items-center gap-1">
-                                                    <Activity className="size-3" /> Last synced: {lastSynced.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    <Activity className="size-3" /> Last synced: {new Date(userData.lastSynced).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                 </p>
                                             ) : (
                                                 <p className="text-[11px] text-slate-400 italic">Not synced yet</p>

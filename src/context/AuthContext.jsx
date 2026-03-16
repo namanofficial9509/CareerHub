@@ -30,6 +30,7 @@ export const AuthProvider = ({ children }) => {
                             uid: currentUser.uid,
                             email: currentUser.email,
                             createdAt: serverTimestamp(),
+                            lastSynced: null,
                             
                             identity: {
                                 name: currentUser.displayName || '',
@@ -61,7 +62,8 @@ export const AuthProvider = ({ children }) => {
                                 cgpa: 0,
                                 hackathon_wins: 0,
                                 streak: 0,
-                                active_days: 1
+                                active_days: 1,
+                                top_languages: []
                             }
                         };
                         await setDoc(docRef, initialData);
@@ -129,6 +131,25 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    // Background Sync Logic
+    useEffect(() => {
+        if (!user || !userData) return;
+        
+        const github = userData.social_links?.github;
+        const leetcode = userData.social_links?.leetcode;
+        
+        if (!github && !leetcode) return;
+        
+        const lastSynced = userData.lastSynced;
+        const ONE_HOUR = 3600000;
+        
+        // Auto-sync if never synced or synced > 1 hour ago
+        if (!lastSynced || (Date.now() - new Date(lastSynced).getTime() > ONE_HOUR)) {
+            console.log("🔄 [Intelligence] Triggering background sync...");
+            syncPlatformData();
+        }
+    }, [user, !!userData]);
+
     // Debug log requested by user to verify data flows
     useEffect(() => {
         if (userData) {
@@ -150,11 +171,17 @@ export const AuthProvider = ({ children }) => {
             if (stats.github) {
                 await updateIntelligenceSignal('metrics.github_stars', stats.github.totalStars);
                 await updateIntelligenceSignal('metrics.total_projects', stats.github.publicRepos);
+                if (stats.github.topLanguages) {
+                    await updateIntelligenceSignal('metrics.top_languages', stats.github.topLanguages);
+                }
             }
             
             if (stats.leetcode) {
                 await updateIntelligenceSignal('metrics.leetcode_solved', stats.leetcode.totalSolved);
             }
+
+            // Update lastSynced timestamp
+            await updateIntelligenceSignal('lastSynced', new Date().toISOString());
             
             return stats;
         } catch (error) {

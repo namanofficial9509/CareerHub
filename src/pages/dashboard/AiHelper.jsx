@@ -6,9 +6,9 @@ import { generateAiContextSummary, calculateSkillLevel } from '../../lib/intelli
 
 const AiHelper = () => {
     const { user, userData } = useAuth();
-    const firstName = userData?.basicProfile?.name?.split(' ')[0] 
+    const firstName = userData?.identity?.name?.split(' ')[0]
+        || userData?.basicProfile?.name?.split(' ')[0] 
         || userData?.onboarding?.displayName?.split(' ')[0] 
-        || userData?.fullName?.split(' ')[0] 
         || user?.displayName?.split(' ')[0] 
         || 'Student';
     const avatarSeed = firstName;

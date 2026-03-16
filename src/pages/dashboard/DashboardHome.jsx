@@ -1,22 +1,27 @@
-import { TrendingUp, Sparkles, Award, Target } from 'lucide-react';
+import { TrendingUp, Sparkles, Award, Target, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { calculateSkillLevel, calculateIntelligenceScore, getBehavioralInsight } from '../../lib/intelligenceEngine';
 import { Activity } from 'lucide-react';
+import { useState } from 'react';
 
 const DashboardHome = () => {
     const { user, userData } = useAuth();
+    const navigate = useNavigate();
+    const [showPremiumModal, setShowPremiumModal] = useState(false);
     const firstName = userData?.identity?.name?.split(' ')[0] 
         || userData?.fullName?.split(' ')[0] 
         || user?.displayName?.split(' ')[0] 
         || 'Student';
-    const avatarSeed = firstName;
     const skillLevel = calculateSkillLevel(userData?.metrics);
     const intelligenceScore = calculateIntelligenceScore(userData);
     const readinessPercentage = Math.floor(intelligenceScore / 10);
     const dashboardInsight = getBehavioralInsight(userData);
+    const userGoal = userData?.career_dna?.learning_goal || 'Software Engineering';
+    const topLanguages = userData?.metrics?.top_languages || [];
 
     return (
+        <>
         <div className="flex flex-col gap-10 w-full mt-2 font-display">
             {/* 1. Header & Status Section */}
             <section className="flex flex-col gap-6">
@@ -53,18 +58,18 @@ const DashboardHome = () => {
                     </div>
 
                     {/* Current Goal */}
-                    <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col justify-between gap-4 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+                    <div onClick={() => navigate('/dashboard/career-navigator')} className="cursor-pointer bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col justify-between gap-4 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
                         <div>
                             <h4 className="text-[12px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Current Goal</h4>
-                            <div className="text-[18px] font-bold text-slate-900 dark:text-white truncate">Software Engineering</div>
+                            <div className="text-[18px] font-bold text-slate-900 dark:text-white truncate">{userGoal}</div>
                         </div>
                         <div className="mt-auto">
                             <div className="flex justify-between text-[13px] font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                 <span>Progress</span>
-                                <span>65%</span>
+                                <span>{readinessPercentage}%</span>
                             </div>
                             <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                <div className="h-full bg-blue-600 rounded-full w-[65%]"></div>
+                                <div className="h-full bg-blue-600 rounded-full transition-all duration-500" style={{width: `${readinessPercentage}%`}}></div>
                             </div>
                         </div>
                     </div>
@@ -127,7 +132,7 @@ const DashboardHome = () => {
                                 </div>
                                 <div>
                                     <h3 className="text-[18px] font-bold leading-tight">Skill Gap Analysis</h3>
-                                    <p className="text-[13px] text-slate-500 font-medium">Visual breakdown of your competencies</p>
+                                    <p className="text-[13px] text-slate-500 font-medium">Based on your synced GitHub languages</p>
                                 </div>
                             </div>
                         </div>
@@ -136,10 +141,15 @@ const DashboardHome = () => {
                             <div>
                                 <h4 className="text-[12px] font-semibold text-slate-500 dark:text-slate-400 mb-4 uppercase tracking-wider">Core Strengths</h4>
                                 <div className="flex flex-wrap gap-2.5">
-                                    <span className="bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 text-[13px] font-medium px-4 py-2 rounded-xl whitespace-nowrap">JavaScript ES6+</span>
-                                    <span className="bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 text-[13px] font-medium px-4 py-2 rounded-xl whitespace-nowrap">React Hooks</span>
-                                    <span className="bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 text-[13px] font-medium px-4 py-2 rounded-xl whitespace-nowrap">Node.js</span>
-                                    <span className="bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 text-[13px] font-medium px-4 py-2 rounded-xl whitespace-nowrap">Tailwind CSS</span>
+                                    {topLanguages.length > 0 ? topLanguages.slice(0,5).map(lang => (
+                                        <span key={lang} className="bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 text-[13px] font-medium px-4 py-2 rounded-xl whitespace-nowrap">{lang}</span>
+                                    )) : (
+                                        <>
+                                            <span className="bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 text-[13px] font-medium px-4 py-2 rounded-xl whitespace-nowrap">JavaScript</span>
+                                            <span className="bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 text-[13px] font-medium px-4 py-2 rounded-xl whitespace-nowrap">React</span>
+                                            <span className="bg-slate-100 dark:bg-slate-700 text-slate-400 text-[11px] font-medium px-4 py-2 rounded-xl">Sync GitHub to see more →</span>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                             <div>
@@ -229,7 +239,7 @@ const DashboardHome = () => {
                                 <p className="text-[14px] text-slate-500 dark:text-slate-400 mb-8 flex items-center gap-2">
                                     <span className="material-symbols-outlined text-[16px]">schedule</span> Estimated time: 20 minutes
                                 </p>
-                                <button className="bg-blue-600 text-white hover:bg-blue-700 font-medium text-[15px] px-8 py-3.5 rounded-xl transition-colors w-full sm:w-auto text-center shadow-sm">
+                                <button onClick={() => navigate('/dashboard/challenges')} className="bg-blue-600 text-white hover:bg-blue-700 font-medium text-[15px] px-8 py-3.5 rounded-xl transition-colors w-full sm:w-auto text-center shadow-sm">
                                     Start Assessment
                                 </button>
                             </div>
@@ -247,31 +257,31 @@ const DashboardHome = () => {
                                         <span className="material-symbols-outlined text-[20px] text-blue-600">emoji_events</span>
                                         <h3 className="text-[16px] font-bold">Hackathons</h3>
                                     </div>
-                                    <button className="text-[12px] font-medium text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors">See all</button>
+                                    <button onClick={() => navigate('/dashboard/challenges')} className="text-[12px] font-medium text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors">See all</button>
                                 </div>
                                 
                                 <div className="flex-1 overflow-y-auto space-y-3 pr-2">
-                                    <div className="group cursor-pointer bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 flex flex-col gap-3 border border-slate-100 dark:border-slate-700/50 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                                    <a href="https://codingcompetitions.withgoogle.com/hashcode" target="_blank" rel="noreferrer" className="group cursor-pointer bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 flex flex-col gap-3 border border-slate-100 dark:border-slate-700/50 hover:border-blue-300 dark:hover:border-slate-600 transition-colors block">
                                         <h4 className="text-[14px] font-bold text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors">Google Hash Code</h4>
                                         <div className="flex justify-between items-center">
                                             <div className="flex items-center gap-1.5 text-[12px] font-medium text-slate-500 dark:text-slate-400">
                                                 <span className="material-symbols-outlined text-[14px]">calendar_today</span>
                                                 <span>Oct 24</span>
                                             </div>
-                                            <span className="text-[11px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-600/10 px-3 py-1 rounded-md">Register</span>
+                                            <span className="text-[11px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-600/10 px-3 py-1 rounded-md">Register ↗</span>
                                         </div>
-                                    </div>
+                                    </a>
 
-                                    <div className="group cursor-pointer bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 flex flex-col gap-3 border border-slate-100 dark:border-slate-700/50 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
-                                        <h4 className="text-[14px] font-bold text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors">Data Science Sprint</h4>
+                                    <a href="https://devpost.com" target="_blank" rel="noreferrer" className="group cursor-pointer bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 flex flex-col gap-3 border border-slate-100 dark:border-slate-700/50 hover:border-blue-300 dark:hover:border-slate-600 transition-colors block">
+                                        <h4 className="text-[14px] font-bold text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors">Devpost Hackathons</h4>
                                         <div className="flex justify-between items-center">
                                             <div className="flex items-center gap-1.5 text-[12px] font-medium text-slate-500 dark:text-slate-400">
                                                 <span className="material-symbols-outlined text-[14px]">calendar_today</span>
-                                                <span>Nov 02</span>
+                                                <span>Ongoing</span>
                                             </div>
-                                            <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400 bg-slate-200 dark:bg-slate-800 px-3 py-1 rounded-md">View</span>
+                                            <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400 bg-slate-200 dark:bg-slate-800 px-3 py-1 rounded-md">View ↗</span>
                                         </div>
-                                    </div>
+                                    </a>
                                 </div>
                             </div>
 
@@ -293,7 +303,7 @@ const DashboardHome = () => {
                                 </p>
 
                                 <div className="mt-auto relative z-10">
-                                    <button className="w-full bg-white text-slate-900 hover:bg-slate-100 font-bold py-3.5 rounded-xl text-[14px] shadow-sm transition-colors flex items-center justify-center gap-2">
+                                    <button onClick={() => setShowPremiumModal(true)} className="w-full bg-white text-slate-900 hover:bg-slate-100 font-bold py-3.5 rounded-xl text-[14px] shadow-sm transition-colors flex items-center justify-center gap-2">
                                         Learn More <span className="material-symbols-outlined text-[16px]">trending_up</span>
                                     </button>
                                 </div>
@@ -315,7 +325,7 @@ const DashboardHome = () => {
                                 <div className="flex-1">
                                     <h3 className="text-[14px] font-bold text-slate-900 dark:text-white mb-1">2 applications</h3>
                                     <p className="text-[13px] font-medium text-slate-500 dark:text-slate-400 mb-3">Closing this weekend.</p>
-                                    <button className="text-[12px] font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 w-max">
+                                    <button onClick={() => navigate('/dashboard/career-navigator')} className="text-[12px] font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 w-max">
                                         Review now <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
                                     </button>
                                 </div>
@@ -361,7 +371,7 @@ const DashboardHome = () => {
                             </h3>
                             <p className="text-[13px] text-slate-500 dark:text-slate-400 leading-relaxed mb-4">Unlock AI Mock Interviews and verified referrals.</p>
 
-                            <button className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-blue-600 dark:hover:border-blue-600 font-bold py-2.5 rounded-xl text-[13px] shadow-sm transition-all hover:shadow-md">
+                            <button onClick={() => setShowPremiumModal(true)} className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-blue-600 dark:hover:border-blue-600 font-bold py-2.5 rounded-xl text-[13px] shadow-sm transition-all hover:shadow-md">
                                 View Plans
                             </button>
                         </div>
@@ -369,6 +379,36 @@ const DashboardHome = () => {
                 </div>
             </section>
         </div>
+
+        {/* Premium Modal */}
+        {showPremiumModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowPremiumModal(false)}>
+                <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-700 relative" onClick={e => e.stopPropagation()}>
+                    <button onClick={() => setShowPremiumModal(false)} className="absolute top-4 right-4 size-8 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                        <X className="size-4 text-slate-500" />
+                    </button>
+                    <div className="size-14 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center mb-5 shadow-lg shadow-blue-300/30">
+                        <Award className="size-7 text-white" />
+                    </div>
+                    <h2 className="text-[22px] font-bold text-slate-900 dark:text-white mb-2">CareerHub Premium</h2>
+                    <p className="text-slate-500 dark:text-slate-400 text-[14px] leading-relaxed mb-6">Unlock AI Mock Interviews, Verified GitHub Badges, and direct Recruiter Connects. Available soon for early adopters.</p>
+                    <div className="space-y-2.5 mb-6">
+                        {['AI Mock Interviews', 'Recruiter Connect', 'Verified Skill Badges', 'Priority AI Analysis'].map(f => (
+                            <div key={f} className="flex items-center gap-3">
+                                <div className="size-5 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                                    <span className="material-symbols-outlined text-blue-600 text-[14px]">check</span>
+                                </div>
+                                <span className="text-[14px] font-medium text-slate-700 dark:text-slate-300">{f}</span>
+                            </div>
+                        ))}
+                    </div>
+                    <button className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-xl text-[15px] shadow-lg shadow-blue-300/20 hover:opacity-90 transition-opacity">
+                        Join Waitlist — Free
+                    </button>
+                </div>
+            </div>
+        )}
+    </>
     );
 };
 

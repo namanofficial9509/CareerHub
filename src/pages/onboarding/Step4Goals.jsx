@@ -48,7 +48,7 @@ const Step4Goals = () => {
             const userRef = doc(db, "users", user.uid);
             await updateDoc(userRef, {
                 "onboarding.goalsShortTerm": shortTerm,
-                "onboarding.goalLongTerm": longTerm,
+                "career_dna.learning_goal": longTerm,
                 "onboarding.timeCommitment": timeCommitment
             });
             navigate('/onboarding/step-5');

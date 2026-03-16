@@ -20,12 +20,16 @@ const Step3Skills = () => {
     const [puzzleSolved, setPuzzleSolved] = useState(false);
     const [puzzleError, setPuzzleError] = useState(false);
     const [puzzleAnswer, setPuzzleAnswer] = useState('');
+    const [github, setGithub] = useState('');
+    const [leetcode, setLeetcode] = useState('');
 
     // Load existing data
     useEffect(() => {
         if (userData?.onboarding?.skills) {
             setSkills(userData.onboarding.skills);
         }
+        if (userData?.social_links?.github) setGithub(userData.social_links.github);
+        if (userData?.social_links?.leetcode) setLeetcode(userData.social_links.leetcode);
     }, [userData]);
 
     const handleSliderChange = (skill, value) => {
@@ -52,7 +56,9 @@ const Step3Skills = () => {
             const userRef = doc(db, "users", user.uid);
             await updateDoc(userRef, {
                 "onboarding.skills": skills,
-                "onboarding.verifiedProblemSolver": puzzleSolved
+                "onboarding.verifiedProblemSolver": puzzleSolved,
+                "social_links.github": github,
+                "social_links.leetcode": leetcode
             });
             navigate('/onboarding/step-4');
         } catch (error) {
@@ -99,6 +105,38 @@ const Step3Skills = () => {
                         onChange={(v) => handleSliderChange('analytical', v)}
                         icon="analytics"
                     />
+                </div>
+
+                {/* Social Platforms Connection */}
+                <div className="pt-4 space-y-4 border-t border-gray-100">
+                    <label className="text-sm font-black text-gray-900 block uppercase tracking-wide">Connect Your Platforms</label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-gray-500 flex items-center gap-1.5">
+                                <span className="material-symbols-outlined text-[14px]">code</span> GitHub Username
+                            </label>
+                            <input 
+                                type="text"
+                                value={github}
+                                onChange={(e) => setGithub(e.target.value)}
+                                placeholder="e.g. yashsharma"
+                                className="w-full h-12 bg-gray-50 border border-gray-200 rounded-xl px-4 text-sm font-medium focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none"
+                            />
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-gray-500 flex items-center gap-1.5">
+                                <span className="material-symbols-outlined text-[14px]">terminal</span> LeetCode ID
+                            </label>
+                            <input 
+                                type="text"
+                                value={leetcode}
+                                onChange={(e) => setLeetcode(e.target.value)}
+                                placeholder="e.g. yash_01"
+                                className="w-full h-12 bg-gray-50 border border-gray-200 rounded-xl px-4 text-sm font-medium focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none"
+                            />
+                        </div>
+                    </div>
+                    <p className="text-[11px] text-gray-400 italic">We use these to sync your projects and coding stats automatically.</p>
                 </div>
             </div>
 

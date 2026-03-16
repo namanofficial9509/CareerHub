@@ -37,11 +37,14 @@ const Step1Identity = () => {
         try {
             const userRef = doc(db, "users", user.uid);
             await updateDoc(userRef, {
-                "onboarding.university": formData.university,
-                "onboarding.course": formData.course,
-                "onboarding.currentYear": formData.currentYear,
-                // We might want to update the root displayName too if changed
-                displayName: formData.displayName
+                "identity.name": formData.displayName,
+                "identity.college": formData.university,
+                "identity.branch": formData.course,
+                "identity.year": formData.currentYear === '1' ? '1st Year' : 
+                                 formData.currentYear === '2' ? '2nd Year' :
+                                 formData.currentYear === '3' ? '3rd Year' :
+                                 formData.currentYear === '4' ? '4th Year' : 'Final Year',
+                "onboardingCompleted": false // Not complete yet
             });
             navigate('/onboarding/step-2');
         } catch (error) {

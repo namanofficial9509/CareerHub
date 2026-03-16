@@ -1,11 +1,45 @@
 import React, { useState, useRef } from 'react';
 
 const ResumeAnalyzer = () => {
-    const [atsScore] = useState(78);
+    const [atsScore, setAtsScore] = useState(78);
     const [skills] = useState({
         matching: ['React', 'Tailwind CSS', 'JavaScript', 'Agile'],
         missing: ['TypeScript', 'Jest', 'AWS']
     });
+    const [jobDescription, setJobDescription] = useState('Software Engineer Intern (Frontend) - Looking for React, Tailwind CSS, and modern JavaScript. Experience with TypeScript and Jest is a plus...');
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [analysisTriggered, setAnalysisTriggered] = useState(false);
+    const [extraSuggestions, setExtraSuggestions] = useState([]);
+    const [suggestionsIndex, setSuggestionsIndex] = useState(0);
+
+    const suggestionBank = [
+        { current: '"Collaborated with team on backend API development."', ai: 'Designed and deployed 3 RESTful APIs using Node.js, reducing response time by 40%.' },
+        { current: '"Wrote unit tests for the project."', ai: 'Achieved 85% code coverage with 120+ Jest unit tests, reducing post-release bugs by 30%.' },
+        { current: '"Maintained the company database."', ai: 'Optimized 15+ SQL queries on PostgreSQL serving 50K+ records, improving query time by 60%.' }
+    ];
+
+    const handleAnalyze = () => {
+        setIsAnalyzing(true);
+        setTimeout(() => {
+            setIsAnalyzing(false);
+            setAnalysisTriggered(true);
+            setAtsScore(prev => Math.min(100, prev + Math.round(Math.random() * 8 + 2)));
+        }, 2000);
+    };
+
+    const handleGenerateMore = () => {
+        if (suggestionsIndex >= suggestionBank.length) return;
+        setExtraSuggestions(prev => [...prev, suggestionBank[suggestionsIndex]]);
+        setSuggestionsIndex(prev => prev + 1);
+    };
+
+    const handleRecalculate = () => {
+        setIsAnalyzing(true);
+        setTimeout(() => {
+            setIsAnalyzing(false);
+            setAtsScore(prev => Math.min(100, prev + Math.round(Math.random() * 5 + 1)));
+        }, 1500);
+    };
 
     // Upload State
     const [uploadedFile, setUploadedFile] = useState(null);
@@ -68,9 +102,13 @@ const ResumeAnalyzer = () => {
                         <span className="material-symbols-outlined text-[20px]">history</span>
                         History
                     </button>
-                    <button className="px-6 py-2.5 bg-blue-600 dark:bg-indigo-600 text-white rounded-xl font-bold text-[14px] shadow-lg shadow-indigo-200 dark:shadow-none hover:bg-blue-700 transition-all flex items-center gap-2 whitespace-nowrap">
-                        <span className="material-symbols-outlined text-[20px]">sync</span>
-                        Recalculate Score
+                    <button
+                        onClick={handleRecalculate}
+                        disabled={isAnalyzing}
+                        className={`px-6 py-2.5 bg-blue-600 dark:bg-indigo-600 text-white rounded-xl font-bold text-[14px] shadow-lg hover:bg-blue-700 transition-all flex items-center gap-2 whitespace-nowrap ${isAnalyzing ? 'opacity-80' : ''}`}
+                    >
+                        <span className={`material-symbols-outlined text-[20px] ${isAnalyzing ? 'animate-spin' : ''}`}>sync</span>
+                        {isAnalyzing ? 'Recalculating...' : 'Recalculate Score'}
                     </button>
                 </div>
             </div>
@@ -130,12 +168,13 @@ const ResumeAnalyzer = () => {
                                     <button 
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            // Handle analysis trigger
+                                            handleAnalyze();
                                         }}
-                                        className="w-full py-3.5 bg-blue-600 dark:bg-indigo-600 text-white rounded-xl font-black text-[14px] shadow-lg shadow-indigo-200 dark:shadow-none hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
+                                        disabled={isAnalyzing}
+                                        className={`w-full py-3.5 bg-blue-600 dark:bg-indigo-600 text-white rounded-xl font-black text-[14px] shadow-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-2 ${isAnalyzing ? 'opacity-80 cursor-wait' : ''}`}
                                     >
-                                        <span className="material-symbols-outlined text-[20px]">analytics</span>
-                                        Analyze Resume
+                                        <span className={`material-symbols-outlined text-[20px] ${isAnalyzing ? 'animate-spin' : ''}`}>analytics</span>
+                                        {isAnalyzing ? 'Analyzing...' : analysisTriggered ? 'Analysis Updated ✓' : 'Analyze Resume'}
                                     </button>
                                     <button 
                                         onClick={(e) => {
@@ -179,10 +218,13 @@ const ResumeAnalyzer = () => {
                         <span className="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-wider rounded-lg border border-emerald-100 dark:border-emerald-800/50">High Quality Data</span>
                     </div>
                     
-                    <div className="bg-gray-50/50 dark:bg-gray-700/50 rounded-2xl p-6 min-h-[200px] w-full">
-                        <p className="text-slate-500 dark:text-slate-400 text-[14px] font-medium leading-relaxed">
-                            Software Engineer Intern (Frontend) - We are looking for a student proficient in React, Tailwind CSS, and modern JavaScript. Experience with TypeScript and testing frameworks like Jest is a huge plus. Must be able to deliver high-quality, readable code and collaborate within an agile team environment...
-                        </p>
+                    <div className="rounded-2xl w-full">
+                        <textarea
+                            value={jobDescription}
+                            onChange={e => setJobDescription(e.target.value)}
+                            className="w-full min-h-[200px] bg-gray-50/50 dark:bg-gray-700/50 rounded-2xl p-6 text-slate-600 dark:text-slate-300 text-[14px] font-medium leading-relaxed resize-none outline-none focus:ring-2 focus:ring-blue-500/30 transition-all"
+                            placeholder="Paste a job description here..."
+                        />
                     </div>
                 </div>
             </div>
@@ -309,12 +351,13 @@ const ResumeAnalyzer = () => {
                         {[
                             { 
                                 current: '"Worked on the frontend of a web app using React and managed bugs."', 
-                                ai: <span>"Engineered responsive UI components using <span className="text-indigo-600 dark:text-blue-400">React</span>, improving user performance by <span className="text-indigo-600 dark:text-blue-400">25%</span> and resolving <span className="text-indigo-600 dark:text-blue-400">40+</span> critical bugs."</span>
+                                ai: 'Engineered responsive UI components using React, improving user performance by 25% and resolving 40+ critical bugs.'
                             },
                             { 
                                 current: '"Helped my team finish the project ahead of schedule."', 
-                                ai: <span>"Collaborated in an <span className="text-indigo-600 dark:text-blue-400">Agile</span> environment to deliver project milestones <span className="text-indigo-600 dark:text-blue-400">2 weeks</span> ahead of schedule."</span>
-                            }
+                                ai: 'Collaborated in an Agile environment to deliver project milestones 2 weeks ahead of schedule.'
+                            },
+                            ...extraSuggestions
                         ].map((item, idx) => (
                             <div key={idx} className="flex flex-col md:flex-row gap-4 md:items-center w-full min-w-0">
                                 <div className="flex-1 bg-[#F8FAFC] dark:bg-gray-700/50 rounded-xl p-5 border border-gray-50 dark:border-gray-700 min-w-0">
@@ -332,8 +375,12 @@ const ResumeAnalyzer = () => {
                         ))}
                     </div>
 
-                    <button className="w-full py-4 bg-[#F8FAFC] dark:bg-gray-700 rounded-2xl text-[14px] font-bold text-slate-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all border border-gray-100 dark:border-gray-600 shadow-sm mt-auto">
-                        Generate More Suggestions
+                    <button
+                        onClick={handleGenerateMore}
+                        disabled={suggestionsIndex >= suggestionBank.length}
+                        className="w-full py-4 bg-[#F8FAFC] dark:bg-gray-700 rounded-2xl text-[14px] font-bold text-slate-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all border border-gray-100 dark:border-gray-600 shadow-sm mt-auto disabled:opacity-40"
+                    >
+                        {suggestionsIndex >= suggestionBank.length ? 'All suggestions shown ✓' : '+ Generate More Suggestions'}
                     </button>
                 </div>
             </div>

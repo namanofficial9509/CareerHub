@@ -7,12 +7,12 @@ export const calculateSkillLevel = (metrics) => {
     const { leetcode_solved = 0, total_projects = 0 } = metrics || {};
     
     // Logic:
-    // if leetcode_solved < 50 => Beginner
-    // if 50-200 => Intermediate
-    // if > 200 => Advanced
+    // Beginner: < 2 projects OR < 50 problems
+    // Intermediate: 2-5 projects AND 50+ problems
+    // Advanced: 5+ projects OR 200+ problems
     
-    if (leetcode_solved > 200 || total_projects >= 5) return 'Advanced';
-    if (leetcode_solved >= 50 || total_projects >= 2) return 'Intermediate';
+    if (total_projects >= 5 || leetcode_solved >= 200) return 'Advanced';
+    if (total_projects >= 2 && leetcode_solved >= 50) return 'Intermediate';
     return 'Beginner';
 };
 
@@ -47,8 +47,9 @@ Branch: ${identity.branch || 'N/A'}
 
 Coding & Project Stats:
 - LeetCode Solved: ${metrics.leetcode_solved || 0}
-- Projects Built: ${metrics.total_projects || 0}
+- Original Projects Built: ${metrics.total_projects || 0}
 - GitHub Stars: ${metrics.github_stars || 0}
+- Top Languages (from GitHub): ${metrics.top_languages?.join(', ') || 'Unknown'}
 
 Learning Behavior:
 - Consistency: ${metrics.streak || 0} day streak

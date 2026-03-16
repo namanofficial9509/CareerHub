@@ -16,17 +16,35 @@ export const fetchGithubStats = async (username) => {
         if (!userRes.ok) throw new Error('GitHub user not found');
         const userData = await userRes.json();
         
-        // 2. Fetch public repos to calculate stats
-        const reposRes = await fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=updated`);
-        const repos = await reposRes.json();
+        // 2. Fetch all public repos (handling pagination for > 100 repos)
+        let repos = [];
+        let page = 1;
+        let hasMore = true;
+        
+        while (hasMore && page <= 5) { // Limit to 5 pages (500 repos) for performance
+            const reposRes = await fetch(`https://api.github.com/users/${username}/repos?per_page=100&page=${page}&sort=updated`);
+            if (!reposRes.ok) break;
+            const pageData = await reposRes.json();
+            if (pageData.length === 0) {
+                hasMore = false;
+            } else {
+                repos = [...repos, ...pageData];
+                if (pageData.length < 100) hasMore = false;
+                page++;
+            }
+        }
         
         let totalStars = 0;
+        let ownReposCount = 0;
         const languages = {};
         
         repos.forEach(repo => {
-            totalStars += repo.stargazers_count;
-            if (repo.language) {
-                languages[repo.language] = (languages[repo.language] || 0) + 1;
+            if (!repo.fork) {
+                ownReposCount++;
+                totalStars += repo.stargazers_count;
+                if (repo.language) {
+                    languages[repo.language] = (languages[repo.language] || 0) + 1;
+                }
             }
         });
 
@@ -38,7 +56,8 @@ export const fetchGithubStats = async (username) => {
 
         return {
             username: username,
-            publicRepos: userData.public_repos,
+            publicRepos: ownReposCount, // Only count original repos
+            totalRepos: userData.public_repos, // Total including forks
             followers: userData.followers,
             totalStars,
             topLanguages,
