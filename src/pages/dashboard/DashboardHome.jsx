@@ -1,13 +1,20 @@
 import { TrendingUp, Sparkles, Award, Target } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
+import { calculateSkillLevel, calculateIntelligenceScore, getBehavioralInsight } from '../../lib/intelligenceEngine';
+import { Activity } from 'lucide-react';
 
 const DashboardHome = () => {
     const { user, userData } = useAuth();
-    const firstName = userData?.onboarding?.displayName?.split(' ')[0] 
+    const firstName = userData?.identity?.name?.split(' ')[0] 
         || userData?.fullName?.split(' ')[0] 
         || user?.displayName?.split(' ')[0] 
-        || 'Aryan';
+        || 'Student';
+    const avatarSeed = firstName;
+    const skillLevel = calculateSkillLevel(userData?.metrics);
+    const intelligenceScore = calculateIntelligenceScore(userData);
+    const readinessPercentage = Math.floor(intelligenceScore / 10);
+    const dashboardInsight = getBehavioralInsight(userData);
 
     return (
         <div className="flex flex-col gap-10 w-full mt-2 font-display">
@@ -29,14 +36,14 @@ const DashboardHome = () => {
                         <div className="flex justify-between items-start">
                             <div>
                                 <h4 className="text-[12px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Readiness</h4>
-                                <div className="text-[20px] font-bold text-slate-900 dark:text-white leading-none">Intermediate</div>
+                                <div className="text-[20px] font-bold text-slate-900 dark:text-white leading-none">{skillLevel}</div>
                             </div>
                             <div className="relative size-[60px] flex items-center justify-center flex-shrink-0">
                                 <svg className="size-full -rotate-90 drop-shadow-sm" viewBox="0 0 36 36">
                                     <path className="text-slate-100 dark:text-slate-800" strokeWidth="4" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                                    <path className="text-blue-600" strokeWidth="4" strokeDasharray="75, 100" strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <path className="text-blue-600" strokeWidth="4" strokeDasharray={`${readinessPercentage}, 100`} strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                                 </svg>
-                                <span className="absolute text-[13px] font-bold text-slate-900 dark:text-white">75%</span>
+                                <span className="absolute text-[13px] font-bold text-slate-900 dark:text-white">{readinessPercentage}%</span>
                             </div>
                         </div>
                         <div className="flex items-center gap-1.5 text-[12px] font-medium text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-500/20 px-3 py-1.5 rounded-full w-fit">
@@ -184,7 +191,6 @@ const DashboardHome = () => {
                         </div>
                     </div>
 
-                    {/* AI Coach Card */}
                     <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col justify-center gap-5 xl:col-span-1 border-t-4 border-t-blue-600 xl:border-t-[1px] xl:border-l-4 xl:border-l-blue-600 transition-all duration-300 hover:shadow-md hover:-translate-y-1">
                         <div className="size-12 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center flex-shrink-0">
                             <Sparkles className="size-6" />
@@ -192,7 +198,7 @@ const DashboardHome = () => {
                         <div>
                             <h4 className="text-[15px] font-bold text-slate-900 dark:text-white mb-2">Your AI Career Coach suggests:</h4>
                             <p className="text-[14px] text-slate-600 dark:text-slate-400 leading-relaxed italic">
-                                "You understand Docker theoretically, but haven't applied it. Building a simple containerized Node.js API this week will turn that conceptual knowledge into a verifiable skill."
+                                "{dashboardInsight}"
                             </p>
                         </div>
                     </div>

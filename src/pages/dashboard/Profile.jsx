@@ -1,13 +1,162 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Download, ExternalLink, Share2, CheckCircle2, TrendingUp, Github, Briefcase, GraduationCap, MapPin, Activity, ShieldCheck, Mail, Calendar } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { db } from '../../lib/firebase';
+import { collection, addDoc, serverTimestamp, query, onSnapshot, orderBy } from 'firebase/firestore';
+import { Download, ExternalLink, Share2, CheckCircle2, TrendingUp, Github, Briefcase, GraduationCap, MapPin, Activity, ShieldCheck, Mail, Calendar, Loader2, Sparkles, Target } from 'lucide-react';
 
 const Profile = () => {
-    const { user, userData } = useAuth();
-    const [viewAsRecruiter, setViewAsRecruiter] = useState(true);
+    const { user, userData, updateIntelligenceSignal, syncPlatformData } = useAuth();
     const [activeTab, setActiveTab] = useState('Overview');
+    const [isSyncing, setIsSyncing] = useState(false);
+    const [syncSuccess, setSyncSuccess] = useState(false);
     const [avatarImage, setAvatarImage] = useState(null);
     const fileInputRef = useRef(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [profileSaved, setProfileSaved] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [lastSynced, setLastSynced] = useState(null);
+    const [projectForm, setProjectForm] = useState({
+        title: '',
+        description: '',
+        techStack: '',
+        githubLink: '',
+        liveLink: '',
+        academics: ''
+    });
+
+    const handleProjectSubmit = async (e) => {
+        e.preventDefault();
+        if (!user) {
+            alert("Please login to add projects");
+            return;
+        }
+        if (!projectForm.title || !projectForm.description) {
+            alert("Please fill in project title and description");
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {            // Add to Firestore subcollection: users/{uid}/projects
+            await addDoc(collection(db, 'users', user.uid, 'projects'), {
+                ...projectForm,
+                createdAt: serverTimestamp()
+            });
+            
+            // Push activity signal for projects
+            await updateIntelligenceSignal('metrics.total_projects', 1, true);
+
+            setProjectForm({
+                title: '',
+                description: '',
+                techStack: '',
+                githubLink: '',
+                liveLink: '',
+                academics: ''
+            });
+            alert('Project added successfully!');
+        } catch (error) {
+            console.error("Error adding project:", error);
+            alert('Failed to add project: ' + error.message);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const [userProjects, setUserProjects] = useState([]);
+
+    const handleProfileSave = async (e) => {
+        e.preventDefault();
+        if (!user) return;
+        setIsSubmitting(true);
+        const form = e.target;
+        
+        const identity = {
+            name: form.profileName.value,
+            branch: form.branch.value,
+            year: form.year.value,
+            college: form.college.value,
+        };
+        
+        const social_links = {
+            github: form.github.value,
+            leetcode: form.leetcode.value,
+        };
+        
+        const career_dna = {
+            learning_goal: form.goal.value,
+        };
+
+        try {
+            await updateIntelligenceSignal('identity', identity);
+            await updateIntelligenceSignal('social_links', social_links);
+            await updateIntelligenceSignal('career_dna', career_dna);
+            setProfileSaved(true);
+            setIsEditing(false); // Switch back to view mode
+            setTimeout(() => setProfileSaved(false), 3000);
+        } catch (err) {
+            console.error('Profile save error:', err);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleSync = async () => {
+        setIsSyncing(true);
+        try {
+            await syncPlatformData();
+            setSyncSuccess(true);
+            setTimeout(() => setSyncSuccess(false), 3000);
+        } catch (err) {
+            console.error('Sync error:', err);
+        } finally {
+            setIsSyncing(false);
+        }
+    };
+
+    // Dummy functions for UI, replace with actual logic if needed
+    const calculateIntelligenceScore = (userData) => {
+        // Example: calculate score based on some user data
+        return userData?.activityStats?.projects ? 85 : 70;
+    };
+
+    const calculateSkillLevel = (metrics) => {
+        // Example: determine skill level
+        return "Advanced";
+    };
+
+    // Background sync on mount
+    useEffect(() => {
+        if (user && userData && !lastSynced) {
+            const syncData = async () => {
+                try {
+                    await syncPlatformData();
+                    setLastSynced(new Date());
+                } catch (err) {
+                    console.error("Auto-sync failed:", err);
+                }
+            };
+            syncData();
+        }
+    }, [user, userData, lastSynced]);
+
+    useEffect(() => {
+        if (!user) return;
+        const q = query(
+            collection(db, 'users', user.uid, 'projects'),
+            orderBy('createdAt', 'desc')
+        );
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const projectsData = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            setUserProjects(projectsData);
+        }, (error) => {
+            console.error("Error fetching projects for profile:", error);
+        });
+        return () => unsubscribe();
+    }, [user]);
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -78,7 +227,7 @@ const Profile = () => {
                             <div className="flex flex-col gap-1">
                                 <div className="flex items-center gap-3">
                                     <h1 className="text-[32px] font-bold text-slate-900 dark:text-white leading-none tracking-tight">
-                                        {userData?.onboarding?.displayName || userData?.fullName || user?.displayName || 'User Profile'}
+                                        {userData?.identity?.name || user?.displayName || 'Student'}
                                     </h1>
                                     {/* Credibility Signals */}
                                     <div className="flex gap-2">
@@ -90,16 +239,20 @@ const Profile = () => {
                                         </div>
                                     </div>
                                 </div>
-                                {/* Role Headline */}
-                                <p className="text-[18px] font-medium text-slate-700 dark:text-slate-300 mt-1">
-                                    Aspiring Backend Engineer | Distributed Systems Enthusiast
+                                <p className="text-slate-500 dark:text-slate-400 font-medium text-[15px] flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-[18px]">school</span>
+                                    {userData?.identity?.branch || 'Set your branch'} • {userData?.identity?.year || 'Year'}
                                 </p>
-                            </div>
-                            
-                            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-2 text-[14px] text-slate-500 dark:text-slate-400">
-                                <div className="flex items-center gap-1.5"><GraduationCap className="size-4" /> B.Tech Computer Science, IIT Bombay</div>
-                                <div className="flex items-center gap-1.5"><MapPin className="size-4" /> Mumbai, Maharashtra</div>
-                                <div className="flex items-center gap-1.5"><Briefcase className="size-4" /> Batch of 2025</div>
+                                <div className="flex flex-wrap items-center gap-3 mt-4">
+                                    <div className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 px-3 py-1.5 rounded-xl text-[13px] font-bold border border-blue-100 dark:border-blue-800/30">
+                                        <Sparkles className="size-3.5" />
+                                        Score: {calculateIntelligenceScore(userData)}
+                                    </div>
+                                    <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-3 py-1.5 rounded-xl text-[13px] font-bold border border-slate-200 dark:border-slate-700">
+                                        <Target className="size-3.5" />
+                                        {calculateSkillLevel(userData?.metrics)}
+                                    </div>
+                                </div>
                             </div>
                             
                             {/* Profile Strength Indicator */}
@@ -125,9 +278,12 @@ const Profile = () => {
                         <button className="w-full sm:w-auto px-5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm text-[14px]">
                             <Share2 className="size-4" /> Share
                         </button>
-                        <button className="w-full sm:w-auto px-5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm text-[14px]">
+                        <Link 
+                            to="/dashboard/portfolio" 
+                            className="w-full sm:w-auto px-5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm text-[14px]"
+                        >
                             <ExternalLink className="size-4" /> Portfolio
-                        </button>
+                        </Link>
                         {/* Primary Action */}
                         <button className="w-full sm:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm text-[14px]">
                             <Download className="size-4" /> Download Resume
@@ -273,49 +429,38 @@ const Profile = () => {
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {[
-                                { 
-                                    title: 'AI Resume Parser', 
-                                    desc: 'Built a multi-modal parser using OpenAI GPT-4 to extract structured data from complex PDF/Word formats.', 
-                                    tags: ['Python', 'FastAPI', 'OpenAI'],
-                                    metric: '91% Accuracy Rate',
-                                    metricColor: 'text-green-600 bg-green-50 dark:bg-green-500/10'
-                                },
-                                { 
-                                    title: 'Distributed Task Queue', 
-                                    desc: 'A high-performance asynchronous task scheduling system relying on pub/sub mechanisms.', 
-                                    tags: ['Golang', 'Redis', 'Docker'],
-                                    metric: '10k Ops / Sec',
-                                    metricColor: 'text-blue-600 bg-blue-50 dark:bg-blue-500/10'
-                                }
-                            ].map((proj, idx) => (
-                                <div key={idx} className="flex flex-col bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/50 transition-all hover:shadow-md hover:-translate-y-1">
-                                    <div className="flex justify-between items-start mb-3">
-                                        <h4 className="text-[16px] font-bold text-slate-900 dark:text-white">{proj.title}</h4>
-                                        <div className="flex gap-2">
-                                            <a href="#" className="text-slate-400 hover:text-slate-900 dark:hover:text-white"><Github className="size-4" /></a>
-                                            <a href="#" className="text-slate-400 hover:text-slate-900 dark:hover:text-white"><ExternalLink className="size-4" /></a>
+                            {userProjects.length > 0 ? (
+                                userProjects.slice(0, 2).map((proj) => (
+                                    <div key={proj.id} className="flex flex-col bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/50 transition-all hover:shadow-md hover:-translate-y-1">
+                                        <div className="flex justify-between items-start mb-3">
+                                            <h4 className="text-[16px] font-bold text-slate-900 dark:text-white">{proj.title}</h4>
+                                            <div className="flex gap-2">
+                                                {proj.githubLink && <a href={proj.githubLink} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-slate-900 dark:hover:text-white"><Github className="size-4" /></a>}
+                                                {proj.liveLink && <a href={proj.liveLink} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-slate-900 dark:hover:text-white"><ExternalLink className="size-4" /></a>}
+                                            </div>
                                         </div>
-                                    </div>
-                                    
-                                    <p className="text-[13px] text-slate-600 dark:text-slate-400 leading-relaxed mb-5 flex-1">
-                                        {proj.desc}
-                                    </p>
+                                        
+                                        <p className="text-[13px] text-slate-600 dark:text-slate-400 leading-relaxed mb-5 flex-1">
+                                            {proj.description}
+                                        </p>
 
-                                    <div className={`px-3 py-1.5 rounded-lg w-max text-[12px] font-bold mb-5 flex items-center gap-1.5 ${proj.metricColor}`}>
-                                        <TrendingUp className="size-3.5" />
-                                        Impact: {proj.metric}
+                                        {proj.techStack && (
+                                            <div className="flex flex-wrap gap-2 mt-auto pt-4 border-t border-slate-200 dark:border-slate-700/50">
+                                                {proj.techStack.split(',').slice(0, 3).map(tag => (
+                                                    <span key={tag} className="text-[11px] font-medium text-slate-500 dark:text-slate-400 px-2.5 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md">
+                                                        {tag.trim()}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
-
-                                    <div className="flex flex-wrap gap-2 mt-auto pt-4 border-t border-slate-200 dark:border-slate-700/50">
-                                        {proj.tags.map(tag => (
-                                            <span key={tag} className="text-[11px] font-medium text-slate-500 dark:text-slate-400 px-2.5 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md">
-                                                {tag}
-                                            </span>
-                                        ))}
-                                    </div>
+                                ))
+                            ) : (
+                                <div className="col-span-2 text-center py-12 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
+                                    <p className="text-slate-500 font-medium">No projects added yet.</p>
+                                    <button onClick={() => setActiveTab('Data Hub')} className="text-blue-600 hover:underline text-sm mt-2">Add your first project</button>
                                 </div>
-                            ))}
+                            )}
                         </div>
                     </div>
 
@@ -657,6 +802,179 @@ const Profile = () => {
                         </div>
                     </div>
 
+                    {/* My Information — feeds AI personalization */}
+                    <form onSubmit={handleProfileSave} className="bg-white dark:bg-slate-900 rounded-2xl border border-blue-200 dark:border-blue-900/40 shadow-sm relative overflow-hidden">
+                        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
+                        <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
+                            <div className="flex items-center gap-3">
+                                <div className="size-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30 flex items-center justify-center text-blue-600">
+                                    <span className="material-symbols-outlined text-[20px]">psychology</span>
+                                </div>
+                                <div>
+                                    <h3 className="text-[16px] font-bold text-slate-900 dark:text-white">My Information</h3>
+                                    <p className="text-[12px] text-slate-500">
+                                        {isEditing ? "Editing your professional profile context." : "Your AI mentor uses this data for personalization."}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                {profileSaved && (
+                                    <span className="text-[12px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 rounded-lg flex items-center gap-1.5 animate-in fade-in slide-in-from-right-4">
+                                        <CheckCircle2 className="size-3.5" /> Saved!
+                                    </span>
+                                )}
+                                <button 
+                                    type="button"
+                                    onClick={() => setIsEditing(!isEditing)}
+                                    className={`p-2 rounded-xl transition-all ${isEditing ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20'}`}
+                                >
+                                    <span className="material-symbols-outlined text-[20px]">{isEditing ? 'close' : 'edit'}</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        {!isEditing ? (
+                            <div className="p-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                    <div className="space-y-1">
+                                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Full Name</p>
+                                        <p className="text-[16px] font-semibold text-slate-900 dark:text-white">{userData?.identity?.name || "Not set"}</p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Academic Track</p>
+                                        <p className="text-[16px] font-semibold text-slate-900 dark:text-white">
+                                            {userData?.identity?.branch || "Not set"} {userData?.identity?.year ? `(${userData.identity.year})` : ""}
+                                        </p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Institution</p>
+                                        <p className="text-[16px] font-semibold text-slate-900 dark:text-white">{userData?.identity?.college || "Not set"}</p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 text-blue-600">
+                                            <Github className="size-3" /> GitHub Profille
+                                        </p>
+                                        {userData?.social_links?.github ? (
+                                            <a href={`https://github.com/${userData.social_links.github}`} target="_blank" rel="noopener noreferrer" className="text-[16px] font-semibold text-blue-600 hover:underline flex items-center gap-1">
+                                                @{userData.social_links.github} <ExternalLink className="size-3" />
+                                            </a>
+                                        ) : (
+                                            <p className="text-[16px] font-semibold text-slate-400">Not set</p>
+                                        )}
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 text-orange-600">
+                                            <Sparkles className="size-3" /> LeetCode
+                                        </p>
+                                        {userData?.social_links?.leetcode ? (
+                                            <a href={`https://leetcode.com/${userData.social_links.leetcode}`} target="_blank" rel="noopener noreferrer" className="text-[16px] font-semibold text-orange-600 hover:underline flex items-center gap-1">
+                                                @{userData.social_links.leetcode} <ExternalLink className="size-3" />
+                                            </a>
+                                        ) : (
+                                            <p className="text-[16px] font-semibold text-slate-400">Not set</p>
+                                        )}
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Career Objective</p>
+                                        <p className="text-[16px] font-semibold text-slate-900 dark:text-white truncate max-w-xs">{userData?.career_dna?.learning_goal || "Not set"}</p>
+                                    </div>
+                                </div>
+
+                                <div className="mt-10 pt-6 border-t border-slate-100 dark:border-slate-800/50 flex flex-wrap items-center justify-between gap-4">
+                                    <div className="flex items-center gap-4">
+                                        <button 
+                                            type="button" 
+                                            onClick={handleSync}
+                                            disabled={isSyncing}
+                                            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[14px] font-bold transition-all ${
+                                                isSyncing ? 'bg-slate-100 text-slate-400 animate-pulse' : 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:scale-105 active:scale-95 shadow-sm'
+                                            }`}
+                                        >
+                                            {isSyncing ? (
+                                                <div className="size-4 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin"></div>
+                                            ) : (
+                                                <span className="material-symbols-outlined text-[20px]">sync</span>
+                                            )}
+                                            {isSyncing ? 'Syncing...' : 'Sync Everything'}
+                                        </button>
+                                        <div className="flex flex-col">
+                                            {lastSynced ? (
+                                                <p className="text-[11px] text-slate-500 font-medium flex items-center gap-1">
+                                                    <Activity className="size-3" /> Last synced: {lastSynced.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                </p>
+                                            ) : (
+                                                <p className="text-[11px] text-slate-400 italic">Not synced yet</p>
+                                            )}
+                                            {syncSuccess && (
+                                                <span className="text-[11px] font-bold text-emerald-600">Sync Complete!</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="flex items-center gap-2 px-4 py-2 bg-blue-50/50 dark:bg-blue-900/10 rounded-lg border border-blue-100 dark:border-blue-800/30">
+                                        <div className="size-2 rounded-full bg-blue-500 animate-pulse"></div>
+                                        <span className="text-[12px] font-semibold text-blue-700 dark:text-blue-400">Live AI Personalization Active</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <div>
+                                        <label className="block text-[12px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">Full Name</label>
+                                        <input name="profileName" type="text" defaultValue={userData?.identity?.name || ''} placeholder="e.g. Yashika Sharma" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-[14px] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[12px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">Branch / Degree</label>
+                                        <input name="branch" type="text" defaultValue={userData?.identity?.branch || ''} placeholder="e.g. Computer Science Engineering" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-[14px] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[12px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">Year of Study</label>
+                                        <select name="year" defaultValue={userData?.identity?.year || ''} className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-[14px] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50">
+                                            <option value="">Select year</option>
+                                            <option value="1st Year">1st Year</option>
+                                            <option value="2nd Year">2nd Year</option>
+                                            <option value="3rd Year">3rd Year</option>
+                                            <option value="4th Year">4th Year</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-[12px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">College</label>
+                                        <input name="college" type="text" defaultValue={userData?.identity?.college || ''} placeholder="e.g. IIT Bombay" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-[14px] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[12px] font-bold text-slate-600 dark:text-slate-400 mb-1.5 text-blue-600">GitHub Username</label>
+                                        <input name="github" type="text" defaultValue={userData?.social_links?.github || ''} placeholder="e.g. yashikasharma" className="w-full bg-white dark:bg-slate-900 border border-blue-100 dark:border-blue-900/50 rounded-xl px-3 py-2 text-[14px] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[12px] font-bold text-slate-600 dark:text-slate-400 mb-1.5 text-orange-600">LeetCode Username</label>
+                                        <input name="leetcode" type="text" defaultValue={userData?.social_links?.leetcode || ''} placeholder="e.g. yashika_01" className="w-full bg-white dark:bg-slate-900 border border-orange-100 dark:border-orange-900/50 rounded-xl px-3 py-2 text-[14px] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50" />
+                                    </div>
+                                    <div className="md:col-span-2 lg:col-span-3">
+                                        <label className="block text-[12px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">Career Goal</label>
+                                        <input name="goal" type="text" defaultValue={userData?.career_dna?.learning_goal || ''} placeholder="e.g. Software Engineer at a product company" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-[14px] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50" />
+                                    </div>
+                                </div>
+                                <div className="px-6 pb-6 flex justify-end gap-3">
+                                    <button 
+                                        type="button" 
+                                        onClick={() => setIsEditing(false)}
+                                        className="px-6 py-2.5 rounded-xl text-[14px] font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button type="submit" disabled={isSubmitting} className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-2.5 rounded-xl text-[14px] flex items-center gap-2 shadow-md transition-all hover:scale-105 active:scale-95 disabled:opacity-50">
+                                        {isSubmitting ? 'Saving...' : (
+                                            <>
+                                                <span className="material-symbols-outlined text-[18px]">check</span> Save Changes
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                    </form>
+
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         
                         {/* Box 1: Academics */}
@@ -674,7 +992,10 @@ const Profile = () => {
                                 <p className="text-[14px] text-slate-600 dark:text-slate-400 mb-6 font-medium leading-relaxed">
                                     Log semester GPAs, relevant coursework, awards, and extracurricular leadership roles.
                                 </p>
-                                <button className="w-full bg-white dark:bg-slate-900 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-orange-500 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/10 text-slate-600 dark:text-slate-400 font-medium py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-[14px]">
+                                <button 
+                                    onClick={() => document.getElementById('project-form')?.scrollIntoView({ behavior: 'smooth' })}
+                                    className="w-full bg-white dark:bg-slate-900 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-orange-500 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/10 text-slate-600 dark:text-slate-400 font-medium py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-[14px]"
+                                >
                                     <span className="material-symbols-outlined text-[20px]">add</span> Add Semester Record
                                 </button>
                             </div>
@@ -700,7 +1021,10 @@ const Profile = () => {
                                 <p className="text-[14px] text-slate-600 dark:text-slate-400 mb-6 font-medium leading-relaxed">
                                     Paste a GitHub repo link and let our AI extract the tech stack and formulate impact bullet points.
                                 </p>
-                                <button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 text-[14px]">
+                                <button 
+                                    onClick={() => document.getElementById('project-form')?.scrollIntoView({ behavior: 'smooth' })}
+                                    className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 text-[14px]"
+                                >
                                     <span className="material-symbols-outlined text-[20px] font-light">magic_button</span> Auto-import Project
                                 </button>
                             </div>
@@ -721,7 +1045,10 @@ const Profile = () => {
                                 <p className="text-[14px] text-slate-600 dark:text-slate-400 mb-6 font-medium leading-relaxed">
                                     Add your internships, contract roles, and full-time positions. Answer a few questions about your impact.
                                 </p>
-                                <button className="w-full bg-white dark:bg-slate-900 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/10 text-slate-600 dark:text-slate-400 font-medium py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-[14px]">
+                                <button 
+                                    onClick={() => document.getElementById('project-form')?.scrollIntoView({ behavior: 'smooth' })}
+                                    className="w-full bg-white dark:bg-slate-900 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/10 text-slate-600 dark:text-slate-400 font-medium py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-[14px]"
+                                >
                                     <span className="material-symbols-outlined text-[20px]">add</span> Add Experience
                                 </button>
                             </div>
@@ -730,48 +1057,117 @@ const Profile = () => {
                     </div>
 
                     {/* Interactive Skeleton View for adding a Project (Open State) */}
-                    <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 border border-purple-200 dark:border-purple-900/50 shadow-sm relative mt-4">
+                    <form 
+                        id="project-form"
+                        onSubmit={handleProjectSubmit} 
+                        className="bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 border border-purple-200 dark:border-purple-900/50 shadow-sm relative mt-4"
+                    >
                         <div className="flex justify-between items-start mb-6">
                             <div>
                                 <h3 className="text-[18px] font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-purple-600 text-[20px]">auto_awesome</span> Smart Project Importer
+                                    <span className="material-symbols-outlined text-purple-600 text-[20px]">auto_awesome</span> Add New Project
                                 </h3>
-                                <p className="text-[14px] text-slate-500 mt-1">Paste a URL or describe your project. We'll generate the ATS bullets.</p>
+                                <p className="text-[14px] text-slate-500 mt-1">Provide your project details. This will auto-generate your portfolio.</p>
                             </div>
-                            <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"><span className="material-symbols-outlined">close</span></button>
                         </div>
 
                         <div className="space-y-5">
-                            <div>
-                                <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">GitHub Repository URL (Optional)</label>
-                                <input type="text" placeholder="https://github.com/username/project" className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-purple-500/50" />
-                            </div>
-                            
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div>
                                     <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Project Name <span className="text-red-500">*</span></label>
-                                    <input type="text" placeholder="e.g. Distributed Task Queue" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-purple-500/50" />
+                                    <input 
+                                        type="text" 
+                                        required
+                                        value={projectForm.title}
+                                        onChange={(e) => setProjectForm(prev => ({...prev, title: e.target.value}))}
+                                        placeholder="e.g. Distributed Task Queue" 
+                                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50" 
+                                    />
                                 </div>
                                 <div>
-                                    <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Completion Date</label>
-                                    <input type="month" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-purple-500/50" />
+                                    <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Academics / Category</label>
+                                    <input 
+                                        type="text" 
+                                        value={projectForm.academics}
+                                        onChange={(e) => setProjectForm(prev => ({...prev, academics: e.target.value}))}
+                                        placeholder="e.g. B.Tech Final Year" 
+                                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50" 
+                                    />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Raw Description</label>
-                                <textarea rows="3" placeholder="I built this project using Node and Redis to handle lots of messages fast..." className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-[14px] focus:outline-none focus:ring-2 focus:ring-purple-500/50 resize-none"></textarea>
-                                <p className="text-[12px] text-slate-500 mt-1.5 flex items-center gap-1"><span className="material-symbols-outlined text-[14px] text-purple-600">info</span> Don't worry about formatting. Write naturally, the AI will restructure it.</p>
+                                <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Tech Stack</label>
+                                <input 
+                                    type="text" 
+                                    value={projectForm.techStack}
+                                    onChange={(e) => setProjectForm(prev => ({...prev, techStack: e.target.value}))}
+                                    placeholder="e.g. React, Node.js, Firebase" 
+                                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50" 
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div>
+                                    <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">GitHub Link</label>
+                                    <input 
+                                        type="url" 
+                                        value={projectForm.githubLink}
+                                        onChange={(e) => setProjectForm(prev => ({...prev, githubLink: e.target.value}))}
+                                        placeholder="https://github.com/..." 
+                                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50" 
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Live Link</label>
+                                    <input 
+                                        type="url" 
+                                        value={projectForm.liveLink}
+                                        onChange={(e) => setProjectForm(prev => ({...prev, liveLink: e.target.value}))}
+                                        placeholder="https://..." 
+                                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50" 
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Description <span className="text-red-500">*</span></label>
+                                <textarea 
+                                    rows="3" 
+                                    required
+                                    value={projectForm.description}
+                                    onChange={(e) => setProjectForm(prev => ({...prev, description: e.target.value}))}
+                                    placeholder="Briefly describe your project and your impact..." 
+                                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-[14px] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 resize-none"
+                                ></textarea>
                             </div>
 
                             <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
-                                <button className="px-5 py-2.5 text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors text-[14px]">Cancel</button>
-                                <button className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-xl transition-colors shadow-sm text-[14px] flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-[18px]">magic_button</span> Generate ATS Record
+                                <button 
+                                    type="button"
+                                    onClick={() => setProjectForm({title: '', description: '', techStack: '', githubLink: '', liveLink: '', academics: ''})}
+                                    className="px-5 py-2.5 text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors text-[14px]"
+                                >
+                                    Clear
+                                </button>
+                                <button 
+                                    type="submit"
+                                    disabled={isSubmitting}
+                                    className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-xl transition-colors shadow-sm text-[14px] flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isSubmitting ? (
+                                        <>
+                                            <Loader2 className="size-4 animate-spin" /> Adding...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span className="material-symbols-outlined text-[18px]">add</span> Add to Portfolio
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         </div>
-                    </div>
+                    </form>
 
                 </div>
             )}

@@ -2,15 +2,17 @@ import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getGenerativeModel } from 'firebase/ai';
 import { ai } from '../../lib/firebase';
+import { generateAiContextSummary, calculateSkillLevel } from '../../lib/intelligenceEngine';
 
 const AiHelper = () => {
     const { user, userData } = useAuth();
-    const firstName = userData?.onboarding?.displayName?.split(' ')[0] 
+    const firstName = userData?.basicProfile?.name?.split(' ')[0] 
+        || userData?.onboarding?.displayName?.split(' ')[0] 
         || userData?.fullName?.split(' ')[0] 
         || user?.displayName?.split(' ')[0] 
-        || 'Aryan';
+        || 'Student';
     const avatarSeed = firstName;
-    const course = userData?.onboarding?.course || 'Computer Science';
+    const skillLevel = calculateSkillLevel(userData?.metrics);
 
     const [messageInput, setMessageInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
@@ -20,7 +22,7 @@ const AiHelper = () => {
     const [messages, setMessages] = useState([
         {
             role: 'ai',
-            content: `I've analyzed your profile, ${firstName}. ${course ? `As a ${course} student, ` : ''}What career goals or technical skills would you like to focus on today?`,
+            content: `I've started analyzing your profile data. You can add more details in the Profile → Data Hub section to get better insights!`,
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         }
     ]);
@@ -50,9 +52,31 @@ const AiHelper = () => {
             // Initialize the GenerativeModel instance
             const model = getGenerativeModel(ai, { model: 'gemini-1.5-flash', mode: 'prefer_in_cloud' });
             
-            // Generate full chat history for context
+            // Build a REAL personalized prompt with the student's profile
+            const studentContext = generateAiContextSummary(userData);
             const historyText = newMessages.map(m => `**${m.role === 'user' ? 'User' : 'Assistant'}**: ${m.content}`).join('\n\n');
-            const prompt = `You are a helpful and encouraging career mentor for a user named ${firstName}. Be concise, professional, and actionable.\n\nHere is our conversation history:\n${historyText}\n\nPlease respond to my last message. Do not output your own speaker label.`;
+
+            console.log("🔥 [DEBUG] AI Context Payload:", studentContext);
+
+            const prompt = `You are an expert AI Career Mentor embedded in a student development platform.
+You are NOT a general chatbot. You MUST refer to the student's actual data before answering.
+
+=== STUDENT PROFILE (REAL DATA) ===
+${studentContext}
+Skill Level: ${skillLevel}
+
+=== STRICT RULES ===
+1. Always refer to the student profile above when generating responses.
+2. Address the student by their first name: ${firstName}.
+3. NEVER ask for information (like year, branch, or skills) that already exists in the profile.
+4. If skill level is Beginner, suggest simple foundational projects. If Intermediate, suggest integration projects. If Advanced, suggest industry-scale challenges.
+5. Be encouraging, specific, and actionable — avoid generic advice.
+6. Keep responses under 200 words unless asked for detail.
+
+=== CONVERSATION HISTORY ===
+${historyText}
+
+Respond to the student's last message. Do not output your own speaker label.`;
             
             // Setup an empty AI message to stream into.
             setMessages(prev => [...prev, {

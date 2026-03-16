@@ -14,11 +14,14 @@ import {
 } from 'lucide-react';
 import { getGenerativeModel } from 'firebase/ai';
 import { ai } from '../../lib/firebase';
+import { useAuth } from '../../context/AuthContext';
+import { generateAiContextSummary } from '../../lib/intelligenceEngine';
 
 const GeminiAssistant = () => {
+    const { userData } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
-        { role: 'assistant', text: "Hi! I'm your AI Career Mentor. I can help with study plans, project ideas, or quiz you on topics. How can I assist you today?" }
+        { role: 'assistant', text: "Hi! I'm your AI Career Mentor. I've been tracking your progress in the Data Hub. How can I help you grow today?" }
     ]);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
@@ -51,7 +54,22 @@ const GeminiAssistant = () => {
             
             // Generate full chat history for context
             const history = newMessages.map(m => `**${m.role === 'user' ? 'User' : 'Assistant'}**: ${m.text}`).join('\n\n');
-            const prompt = `Here is our conversation history:\n${history}\n\nPlease respond to my last message in character as a helpful career mentor. Do not output your own speaker label.`;
+            const studentContext = generateAiContextSummary(userData);
+            
+            const prompt = `You are an expert AI Career Mentor. 
+            
+Here is the student's current profile and progress:
+${studentContext}
+
+Guidelines:
+1. Be encouraging and proactive.
+2. Reference their specific branch, projects, or skill level in your responses.
+3. If they are 'Beginner', suggest foundational projects. If 'Advanced', suggest industry-level scaling.
+
+Conversation History:
+${history}
+
+Please respond to the student's last message. Do not output your own speaker label.`;
 
             // Setup temporary message in UI for the response
             setMessages(prev => [...prev, { role: 'assistant', text: '' }]);
