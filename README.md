@@ -58,8 +58,7 @@ Follow these steps to set up the project locally.
 
 1.  **Clone the repository**
     ```bash
-    git clone https://github.com/Sahilbasu5101/gdg-hackathon-project.git
-    cd student-hub
+    git clone  https://github.com/namanofficial9509/CareerHub.git
     ```
 
 2.  **Install dependencies**
