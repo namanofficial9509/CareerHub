@@ -176,7 +176,7 @@ const Login = () => {
                     <div className="flex items-center gap-2">
                         <span className="material-symbols-outlined text-white/30 text-[20px]">hub</span>
                         <div className="text-white/40 text-[10px] tracking-[0.3em] uppercase font-black">
-                            © 2024 Universal Student Hub
+                            © 2026 Carrier AI
                         </div>
                     </div>
                     <div className="flex gap-6 md:gap-8 flex-wrap justify-center">

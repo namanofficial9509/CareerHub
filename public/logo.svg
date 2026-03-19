@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <path d="M 110 40 L 60 40 C 35 40 20 55 20 80 L 20 140 C 20 165 35 180 60 180 L 130 180 C 155 180 170 165 170 140 L 170 100" fill="none" stroke="#00a3e0" stroke-width="12" stroke-linecap="round"/>
+  <path d="M 160 10 Q 160 40 190 40 Q 160 40 160 70 Q 160 40 130 40 Q 160 40 160 10 Z" fill="#00a3e0"/>
+  <text x="95" y="145" font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="bold" font-size="100" text-anchor="middle" letter-spacing="-2" fill="#00a3e0">Ai</text>
+</svg>
