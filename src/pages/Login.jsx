@@ -13,7 +13,7 @@ const Login = () => {
             const user = result.user;
             console.log(`User signed in: `, user);
 
-            if (isNewUser) {
+            if (isSignUp || isNewUser) {
                 navigate('/onboarding/step-1');
             } else {
                 navigate('/dashboard');
