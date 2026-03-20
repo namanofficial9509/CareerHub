@@ -71,3 +71,71 @@ export const getBehavioralInsight = (userData) => {
     if (streak >= 3) return "You're building a great habit. Keep the momentum going for 4 more days to hit a weekly streak.";
     return "Start a coding habit today! Even 30 minutes of practice counts towards your daily streak.";
 };
+
+export const generateWeeklyGoals = (userData) => {
+    const { metrics = {}, career_dna = {} } = userData || {};
+    const goals = [];
+
+    // Goal 1: Skill based
+    if ((metrics.leetcode_solved || 0) < 50) {
+        goals.push({ target: "Solve 10 Easy DSA Problems", type: "dsa", priority: "High" });
+    } else if ((metrics.leetcode_solved || 0) < 200) {
+        goals.push({ target: "Solve 5 Medium DSA Problems", type: "dsa", priority: "Medium" });
+    } else {
+        goals.push({ target: "Participate in Weekly Contest", type: "dsa", priority: "Medium" });
+    }
+
+    // Goal 2: Project based
+    if ((metrics.total_projects || 0) === 0) {
+        goals.push({ target: "Initialize First GitHub Project", type: "mern", priority: "High" });
+    } else if ((metrics.total_projects || 0) < 3) {
+        goals.push({ target: "Build a Portfolio Website", type: "mern", priority: "Medium" });
+    } else {
+        goals.push({ target: "Deploy one project to Cloud", type: "cloud", priority: "Low" });
+    }
+
+    // Goal 3: Career based
+    const target = career_dna.target_role?.toLowerCase() || "";
+    if (target.includes("backend")) {
+        goals.push({ target: "Master JWT Authentication", type: "mern", priority: "High" });
+    } else if (target.includes("frontend")) {
+        goals.push({ target: "Optimize React Performance", type: "mern", priority: "High" });
+    } else {
+        goals.push({ target: "Optimize Technical Resume", type: "mern", priority: "Medium" });
+    }
+
+    return goals;
+};
+
+export const performSkillGapAnalysis = (userData) => {
+    const { onboarding = {}, metrics = {} } = userData || {};
+    const skills = onboarding.skills || {};
+    const topLangs = metrics.top_languages || [];
+    
+    // Benchmarks based on target roles (simplified)
+    const analysis = [
+        { 
+            skill: topLangs[0] || "Core Stack", 
+            val: Math.min(40 + (metrics.total_projects || 0) * 10, 95), 
+            demand: "92%", 
+            color: "from-emerald-400 to-emerald-600",
+            status: (metrics.total_projects || 0) >= 3 ? "Advanced" : "Growth Plan"
+        },
+        { 
+            skill: "DSA & Logic", 
+            val: Math.min(20 + (metrics.leetcode_solved || 0) / 2, 90), 
+            demand: "88%", 
+            color: "from-blue-400 to-blue-600",
+            status: (metrics.leetcode_solved || 0) >= 100 ? "Strong" : "Foundation"
+        },
+        { 
+            skill: "Soft Skills", 
+            val: skills.communication || 50, 
+            demand: "85%", 
+            color: "from-purple-400 to-purple-600",
+            status: (skills.communication || 0) > 70 ? "Lead Ready" : "Practice"
+        }
+    ];
+
+    return analysis;
+};

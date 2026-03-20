@@ -24,7 +24,7 @@ const Profile = () => {
         liveLink: '',
         academics: ''
     });
-    const [activeCategory, setActiveCategory] = useState(null); // 'academics', 'research', 'projects', 'experience'
+    const [activeCategory, setActiveCategory] = useState(null); // 'academics', 'research', 'projects', 'experience', 'skills'
     
     // Form states for other categories
     const [academicsForm, setAcademicsForm] = useState({ semester: '', sgpa: '', year: '', subjects: '' });
@@ -1007,7 +1007,7 @@ const Profile = () => {
                         )}
                     </form>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
                         
                         {!activeCategory ? (
                             <>
@@ -1081,9 +1081,7 @@ const Profile = () => {
                                             <span className="material-symbols-outlined text-[20px] font-light">magic_button</span> Auto-import
                                         </button>
                                     </div>
-                                </div>
-
-                                {/* Box 4: Experience */}
+                                                                 {/* Box 4: Experience */}
                                 <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-shadow">
                                     <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
                                         <div className="flex items-center gap-3">
@@ -1105,6 +1103,30 @@ const Profile = () => {
                                         </button>
                                     </div>
                                 </div>
+
+                                {/* Box 5: Skills & Interests */}
+                                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-shadow">
+                                    <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
+                                        <div className="flex items-center gap-3">
+                                            <div className="size-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/30 flex items-center justify-center text-indigo-600">
+                                                <Sparkles className="size-5" />
+                                            </div>
+                                            <h3 className="text-[16px] font-bold text-slate-900 dark:text-white">Skills</h3>
+                                        </div>
+                                    </div>
+                                    <div className="p-6 flex-1 flex flex-col justify-between">
+                                        <p className="text-[14px] text-slate-600 dark:text-slate-400 mb-6 font-medium leading-relaxed">
+                                            Manage your core technical strengths and career interests to get a better roadmap.
+                                        </p>
+                                        <button 
+                                            onClick={() => setActiveCategory('skills')}
+                                            className="w-full bg-white dark:bg-slate-900 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-indigo-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/10 text-slate-600 dark:text-slate-400 font-medium py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-[14px]"
+                                        >
+                                            <span className="material-symbols-outlined text-[20px]">edit_note</span> Manage Skills
+                                        </button>
+                                    </div>
+                                </div>
+  </div>
                             </>
                         ) : null}
 
@@ -1276,6 +1298,110 @@ const Profile = () => {
                                 </div>
                             </div>
                         </form>
+                    )}
+
+                    {activeCategory === 'skills' && (
+                        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 border border-indigo-200 dark:border-indigo-900/50 shadow-sm relative mt-4 animate-in fade-in slide-in-from-top-4">
+                            <button type="button" onClick={() => setActiveCategory(null)} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 transition-colors"><X className="size-5" /></button>
+                            <div className="mb-8">
+                                <h3 className="text-[18px] font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    <Sparkles className="text-indigo-600 size-5" /> Manage Skills & Interests
+                                </h3>
+                                <p className="text-[14px] text-slate-500 mt-1">This data powers your Personalized Career Roadmap.</p>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                                {/* Skills Sliders */}
+                                <div className="space-y-6">
+                                    <h4 className="text-[12px] font-black text-slate-500 uppercase tracking-widest mb-4">Core Strengths</h4>
+                                    {[
+                                        { key: 'technical', label: 'Technical / Coding' },
+                                        { key: 'problemSolving', label: 'Problem Solving' },
+                                        { key: 'communication', label: 'Communication' },
+                                        { key: 'analytical', label: 'Analytical Thinking' }
+                                    ].map(skill => (
+                                        <div key={skill.key} className="space-y-2">
+                                            <div className="flex justify-between items-center">
+                                                <label className="text-[13px] font-bold text-slate-700 dark:text-slate-300">{skill.label}</label>
+                                                <span className="text-[13px] font-black text-indigo-600">{userData?.onboarding?.skills?.[skill.key] || 50}%</span>
+                                            </div>
+                                            <input 
+                                                type="range" 
+                                                min="0" max="100" 
+                                                value={userData?.onboarding?.skills?.[skill.key] || 50}
+                                                onChange={(e) => updateIntelligenceSignal(`onboarding.skills.${skill.key}`, parseInt(e.target.value))}
+                                                className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full appearance-none cursor-pointer accent-indigo-600"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Interests Tags */}
+                                <div>
+                                    <h4 className="text-[12px] font-black text-slate-500 uppercase tracking-widest mb-4">Career Focus / Interests</h4>
+                                    <div className="flex flex-wrap gap-2 mb-6">
+                                        {(userData?.onboarding?.interests || ['Web Development', 'Machine Learning']).map(interest => (
+                                            <span key={interest} className="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800/40 rounded-xl text-[12px] font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-2 group">
+                                                {interest}
+                                                <button 
+                                                    onClick={() => {
+                                                        const newInterests = userData.onboarding.interests.filter(i => i !== interest);
+                                                        updateIntelligenceSignal('onboarding.interests', newInterests);
+                                                    }}
+                                                    className="opacity-0 group-hover:opacity-100 hover:text-red-500 transition-all"
+                                                >
+                                                    <X className="size-3" />
+                                                </button>
+                                            </span>
+                                        ))}
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <input 
+                                            id="newInterestInput"
+                                            type="text" 
+                                            placeholder="Add interest (e.g. Cloud, UI/UX)" 
+                                            className="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] outline-none focus:border-indigo-500 transition-all font-medium"
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' && e.target.value.trim()) {
+                                                    const val = e.target.value.trim();
+                                                    const current = userData?.onboarding?.interests || [];
+                                                    if (!current.includes(val)) {
+                                                        updateIntelligenceSignal('onboarding.interests', [...current, val]);
+                                                    }
+                                                    e.target.value = '';
+                                                }
+                                            }}
+                                        />
+                                        <button 
+                                            type="button"
+                                            onClick={() => {
+                                                const input = document.getElementById('newInterestInput');
+                                                if (input.value.trim()) {
+                                                    const val = input.value.trim();
+                                                    const current = userData?.onboarding?.interests || [];
+                                                    if (!current.includes(val)) {
+                                                        updateIntelligenceSignal('onboarding.interests', [...current, val]);
+                                                    }
+                                                    input.value = '';
+                                                }
+                                            }}
+                                            className="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all shadow-md"
+                                        >
+                                            <Plus className="size-5" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-10 pt-6 border-t border-slate-100 dark:border-slate-800/50 flex justify-end">
+                                <button 
+                                    onClick={() => setActiveCategory(null)}
+                                    className="px-8 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl text-[14px] shadow-lg hover:scale-105 transition-all"
+                                >
+                                    Finish Editing
+                                </button>
+                            </div>
+                        </div>
                     )}
                 </div>
             )}
