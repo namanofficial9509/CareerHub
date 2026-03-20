@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { db, auth } from '../../lib/firebase';
+import { collection, addDoc } from 'firebase/firestore';
 
 const SprintAssessment = () => {
     // State for selected answers
@@ -7,12 +9,150 @@ const SprintAssessment = () => {
     // State for countdown timer (12:45 initially based on mockup)
     const [timeLeft, setTimeLeft] = useState(12 * 60 + 45); // in seconds
 
+    // Security & Anti-cheating state
+    const [testStarted, setTestStarted] = useState(false);
+    const [violationCount, setViolationCount] = useState(0);
+    const [isTerminated, setIsTerminated] = useState(false);
+    const streamRef = useRef(null);
+    const webcamStreamRef = useRef(null);
+    const videoRef = useRef(null);
+
+    const endTest = useCallback(async (reason) => {
+        setIsTerminated(true);
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop());
+            streamRef.current = null;
+        }
+        if (webcamStreamRef.current) {
+            webcamStreamRef.current.getTracks().forEach(track => track.stop());
+            webcamStreamRef.current = null;
+        }
+        try {
+            await addDoc(collection(db, 'terminations'), {
+                type: 'test_terminated',
+                reason: reason,
+                userId: auth?.currentUser?.uid || 'anonymous',
+                timestamp: new Date()
+            });
+        } catch (error) {
+            console.error('Error logging termination:', error);
+        }
+    }, []);
+
+    const handleViolation = useCallback(async (reason, logType = 'violation') => {
+        if (isTerminated) return;
+        
+        setViolationCount(prev => {
+            const newCount = prev + 1;
+            addDoc(collection(db, 'violations'), {
+                type: logType,
+                reason: reason,
+                count: newCount,
+                userId: auth?.currentUser?.uid || 'anonymous',
+                timestamp: new Date()
+            }).catch(e => console.error('Error logging violation', e));
+
+            if (newCount === 1) {
+                alert("Warning: Stay in front of the camera and do not engage in unfair means. Do not switch tabs or stop sharing. Your next violation will result in termination.");
+            } else if (newCount >= 2) {
+                endTest("unfair means");
+            }
+            return newCount;
+        });
+    }, [isTerminated, endTest]);
+
+    const startSecureTest = async () => {
+        try {
+            // Request Webcam
+            const webcamStream = await navigator.mediaDevices.getUserMedia({ video: true });
+            webcamStreamRef.current = webcamStream;
+            
+            if (videoRef.current) {
+                videoRef.current.srcObject = webcamStream;
+            }
+
+            webcamStream.getVideoTracks()[0].onended = () => {
+                handleViolation("camera_off", "camera_violation");
+            };
+
+            // Request Screen share
+            const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+            streamRef.current = stream;
+            stream.getVideoTracks()[0].onended = () => {
+                handleViolation("screen_share_stop");
+            };
+            
+            // Full screen
+            await document.documentElement.requestFullscreen();
+            setTestStarted(true);
+        } catch (err) {
+            alert("You must allow camera access, screen sharing, and full screen to start the test.");
+            console.error("Setup failed:", err);
+        }
+    };
+
     useEffect(() => {
+        if (!testStarted || isTerminated) return;
+
+        const handleVisibilityChange = () => {
+            if (document.hidden) handleViolation("tab_switch");
+        };
+
+        const handleBlur = () => {
+             handleViolation("blur");
+        };
+
+        const handleFullscreenChange = () => {
+            if (!document.fullscreenElement) handleViolation("fullscreen_exit");
+        };
+
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+        window.addEventListener("blur", handleBlur);
+        document.addEventListener("fullscreenchange", handleFullscreenChange);
+
+        return () => {
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+            window.removeEventListener("blur", handleBlur);
+            document.removeEventListener("fullscreenchange", handleFullscreenChange);
+        };
+    }, [testStarted, isTerminated, handleViolation]);
+
+    // Face Detection Extensible Interval
+    useEffect(() => {
+        if (!testStarted || isTerminated) return;
+
+        const faceCheckInterval = setInterval(() => {
+            // NOTE: Structurally prepared for face-api.js or equivalent integration.
+            // e.g. const detections = await faceapi.detectAllFaces(videoRef.current, new faceapi.TinyFaceDetectorOptions());
+            
+            // Stub Values:
+            const hasFace = true; 
+            const multipleFaces = false;
+            
+            if (!hasFace) {
+                handleViolation("no_face_detected", "camera_violation");
+            } else if (multipleFaces) {
+                handleViolation("multiple_faces_detected", "camera_violation");
+            }
+        }, 3000);
+
+        return () => clearInterval(faceCheckInterval);
+    }, [testStarted, isTerminated, handleViolation]);
+
+    useEffect(() => {
+        if (!testStarted || isTerminated) return;
         const timer = setInterval(() => {
-            setTimeLeft(prev => (prev > 0 ? prev - 1 : 0));
+            setTimeLeft(prev => {
+                if (prev <= 1) {
+                    clearInterval(timer);
+                    endTest("time_out");
+                    return 0;
+                }
+                return prev - 1;
+            });
         }, 1000);
         return () => clearInterval(timer);
-    }, []);
+    }, [testStarted, isTerminated, endTest]);
 
     const formatTime = (seconds) => {
         const m = Math.floor(seconds / 60);
@@ -52,9 +192,102 @@ const SprintAssessment = () => {
     const answeredCount = Object.keys(answers).length;
     const progressPerc = (answeredCount / totalQuestions) * 100;
 
+    if (isTerminated) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 w-full">
+                <div className="size-20 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-6 mx-auto">
+                    <span className="material-symbols-outlined text-[40px]">gavel</span>
+                </div>
+                <h1 className="text-3xl font-bold text-slate-900 mb-4">Assessment Terminated</h1>
+                <p className="text-lg text-slate-600 max-w-md">
+                    You are removed from the test due to unfair means. This incident has been recorded.
+                </p>
+                <button 
+                    onClick={() => window.location.href = '/dashboard/challenges'}
+                    className="mt-8 bg-slate-900 text-white px-6 py-3 rounded-xl font-[600] hover:bg-slate-800 transition-colors"
+                >
+                    Return to Dashboard
+                </button>
+            </div>
+        );
+    }
+
+    if (!testStarted) {
+        return (
+             <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 w-full max-w-[800px] mx-auto mt-8">
+                <div className="bg-white rounded-[32px] p-10 shadow-[0_4px_24px_rgba(0,0,0,0.04)] border border-slate-100 w-full relative overflow-hidden text-center">
+                    <div className="absolute top-0 left-0 w-full h-1.5 bg-[#5d3fd3]"></div>
+                    <div className="size-16 rounded-3xl bg-indigo-50 text-[#5d3fd3] flex items-center justify-center mb-6 mx-auto">
+                        <span className="material-symbols-outlined text-[32px]">shield_lock</span>
+                    </div>
+                    <h1 className="text-3xl font-[900] text-slate-900 mb-6">Secure Assessment Environment</h1>
+                    
+                    <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-left mb-8 max-w-[600px] mx-auto">
+                        <h3 className="text-amber-900 font-[800] mb-3 flex items-center gap-2">
+                            <span className="material-symbols-outlined text-[20px]">security</span>
+                            Important Security Notice
+                        </h3>
+                        <p className="text-[14px] text-amber-800/80 mb-4 leading-relaxed font-[500]">
+                            Camera access is required for fair monitoring during the test. Wait for permissions before beginning. To maintain the integrity of this challenge, this assessment requires a secure environment. Please note:
+                        </p>
+                        <ul className="space-y-4">
+                            <li className="flex items-start gap-3 text-[14px] text-amber-900/90 font-[600]">
+                                <div className="bg-amber-100 rounded-lg p-1.5 text-amber-600 shrink-0">
+                                    <span className="material-symbols-outlined text-[18px] block">videocam</span>
+                                </div>
+                                <span className="pt-1">Camera recording is required. Stopping the camera or moving your face away is a violation.</span>
+                            </li>
+                            <li className="flex items-start gap-3 text-[14px] text-amber-900/90 font-[600]">
+                                <div className="bg-amber-100 rounded-lg p-1.5 text-amber-600 shrink-0">
+                                    <span className="material-symbols-outlined text-[18px] block">fit_screen</span>
+                                </div>
+                                <span className="pt-1">The test must be taken in Full Screen mode. Exiting full screen is a violation.</span>
+                            </li>
+                            <li className="flex items-start gap-3 text-[14px] text-amber-900/90 font-[600]">
+                                <div className="bg-amber-100 rounded-lg p-1.5 text-amber-600 shrink-0">
+                                    <span className="material-symbols-outlined text-[18px] block">screen_share</span>
+                                </div>
+                                <span className="pt-1">Screen capturing is required. Stopping the capture is a violation.</span>
+                            </li>
+                            <li className="flex items-start gap-3 text-[14px] text-amber-900/90 font-[600]">
+                                <div className="bg-amber-100 rounded-lg p-1.5 text-amber-600 shrink-0">
+                                    <span className="material-symbols-outlined text-[18px] block">tab</span>
+                                </div>
+                                <span className="pt-1">Switching tabs or losing focus on the window will trigger a violation.</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <p className="text-[13px] text-slate-500 font-[500] mb-8 max-w-[500px] mx-auto leading-relaxed">
+                        While full cheating prevention is not possible due to browser limitations, this system is designed to reduce unfair practices. You will receive one warning before termination.
+                    </p>
+
+                    <button 
+                        onClick={startSecureTest}
+                        className="bg-[#5d3fd3] text-white px-10 py-4 rounded-2xl font-[800] text-[16px] hover:bg-[#4a32a8] active:scale-[0.98] transition-all flex items-center justify-center gap-3 w-full sm:w-auto mx-auto shadow-xl shadow-[#5d3fd3]/25"
+                    >
+                        <span className="material-symbols-outlined text-[22px]">lock_open</span>
+                        Accept & Begin Secure Test
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="flex flex-col lg:flex-row gap-6 w-full max-w-[1200px] mx-auto min-h-screen pb-12 items-start mt-2">
             
+            {/* Live Camera Preview overlay */}
+            {testStarted && !isTerminated && (
+                <div className="fixed top-24 right-6 sm:bottom-6 sm:right-6 sm:top-auto z-50 w-48 aspect-video bg-black rounded-xl overflow-hidden shadow-2xl border-4 border-[#5d3fd3]">
+                    <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+                    <div className="absolute top-2 right-2 bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow flex items-center gap-1">
+                        <span className="size-2 bg-white rounded-full animate-pulse"></span>
+                        Camera Active
+                    </div>
+                </div>
+            )}
+
             {/* Left Column: Questions */}
             <div className="flex-[1.2] w-full space-y-6">
                 
