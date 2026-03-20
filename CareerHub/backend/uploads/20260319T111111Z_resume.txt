@@ -1,0 +1,4 @@
+Projects
+Built full stack app in React and Python Flask with SQL. Used Git and designed REST APIs. Improved load time by 35%.
+Skills
+Python React SQL Git Flask

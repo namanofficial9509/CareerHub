@@ -1,0 +1,95 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import "tailwindcss";
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/container-queries";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary: #2513ec;
+  --color-background-light: #f6f6f8;
+  --color-background-dark: #020205;
+  --font-display: "Inter", sans-serif;
+
+  --radius: 1rem;
+  --radius-lg: 2rem;
+  --radius-xl: 3.5rem;
+  /* --radius-full is already 9999px by default */
+}
+
+:root {
+  font-family: "Inter", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--color-background-dark);
+  color: white;
+  /* Ensure text is white by default as per design */
+}
+
+/* Fix for Material Symbols Outlined */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined', sans-serif !important;
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.material-symbols-outlined.filled {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.mesh-gradient {
+  background-color: var(--color-background-dark);
+  background-image: radial-gradient(at 50% 50%, rgba(37, 19, 236, 0.12) 0, transparent 60%),
+    radial-gradient(at 0% 0%, rgba(37, 19, 236, 0.1) 0, transparent 40%),
+    radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.08) 0, transparent 40%);
+}
+
+.glass-portal {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 100px rgba(37, 19, 236, 0.2), inset 0 0 40px rgba(255, 255, 255, 0.02);
+}
+
+.ring-glow {
+  border: 1px solid;
+  border-image-source: linear-gradient(135deg, rgba(37, 19, 236, 0.3) 0%, rgba(6, 182, 212, 0.3) 100%);
+  border-image-slice: 1;
+  border-radius: 50%;
+}
+
+.floating {
+  animation: float 8s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-15px) rotate(1deg);
+  }
+
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+}

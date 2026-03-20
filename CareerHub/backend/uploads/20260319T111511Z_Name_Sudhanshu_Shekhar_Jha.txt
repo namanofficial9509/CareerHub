@@ -1,0 +1,28 @@
+Name: Sudhanshu Shekhar Jha
+
+Education:
+B.Tech in Information Technology (2024-2028)
+BPIT, Delhi
+
+Skills:
+- C++, JavaScript, Python
+- React.js, Node.js, Express.js
+- MongoDB, MySQL
+- Data Structures and Algorithms
+
+Projects:
+1. CareerHub (Resume Analyzer)
+- Built a web app using React and FastAPI
+- Integrated AI for resume analysis
+- Used Tailwind CSS for UI
+
+2. Chatbot App
+- Developed chatbot using LangChain and HuggingFace
+- Integrated with frontend using React
+
+Experience:
+- Solved 300+ DSA problems on LeetCode
+
+Achievements:
+- Participated in Hackathons
+- Learning AI/ML and MERN stack
