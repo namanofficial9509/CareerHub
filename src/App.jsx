@@ -3,6 +3,10 @@ import Login from './pages/Login';
 import OnboardingLayout from './pages/onboarding/OnboardingLayout';
 import Step1Identity from './pages/onboarding/Step1Identity';
 import Step2Interests from './pages/onboarding/Step2Interests';
+import Step2Tech from './pages/onboarding/Step2Tech';
+import Step2Business from './pages/onboarding/Step2Business';
+import Step2Engineering from './pages/onboarding/Step2Engineering';
+import Step2Creative from './pages/onboarding/Step2Creative';
 import Step3Skills from './pages/onboarding/Step3Skills';
 import Step4Goals from './pages/onboarding/Step4Goals';
 import Step5Community from './pages/onboarding/Step5Community';
@@ -16,6 +20,8 @@ import Roadmap from './pages/dashboard/Roadmap';
 import Insights from './pages/dashboard/Insights';
 import AiHelper from './pages/dashboard/AiHelper';
 import Challenges from './pages/dashboard/Challenges';
+import ChallengeDetail from './pages/dashboard/ChallengeDetail';
+import SprintAssessment from './pages/dashboard/SprintAssessment';
 import ResumeAnalyzer from './pages/dashboard/ResumeAnalyzer';
 import './App.css';
 
@@ -33,6 +39,10 @@ function App() {
           <Route path="/onboarding" element={<OnboardingLayout />}>
             <Route path="step-1" element={<Step1Identity />} />
             <Route path="step-2" element={<Step2Interests />} />
+            <Route path="step-2-tech" element={<Step2Tech />} />
+            <Route path="step-2-business" element={<Step2Business />} />
+            <Route path="step-2-engineering" element={<Step2Engineering />} />
+            <Route path="step-2-creative" element={<Step2Creative />} />
             <Route path="step-3" element={<Step3Skills />} />
             <Route path="step-4" element={<Step4Goals />} />
             <Route path="step-5" element={<Step5Community />} />
@@ -49,6 +59,8 @@ function App() {
             <Route path="roadmap" element={<Roadmap />} />
             <Route path="ai-helper" element={<AiHelper />} />
             <Route path="challenges" element={<Challenges />} />
+            <Route path="challenges/:id" element={<ChallengeDetail />} />
+            <Route path="challenges/:id/assessment" element={<SprintAssessment />} />
             <Route path="insights" element={<Insights />} />
             <Route path="resume-analyzer" element={<ResumeAnalyzer />} />
           </Route>

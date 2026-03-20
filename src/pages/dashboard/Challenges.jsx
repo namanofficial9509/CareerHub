@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Challenges = () => {
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('Live');
     
     // Countdown Timer State
@@ -210,7 +212,15 @@ const Challenges = () => {
                     {/* Grid List */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-8">
                         {filteredChallenges.length > 0 ? filteredChallenges.map((challenge) => (
-                            <div key={challenge.id} className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden group hover:shadow-sm hover:shadow-primary/5 hover:border-primary/20 dark:hover:border-indigo-500/50 transition-all cursor-pointer flex flex-col h-full">
+                            <div 
+                                key={challenge.id} 
+                                onClick={() => {
+                                    if(challenge.title === 'Data Science Sprint') {
+                                        navigate('/dashboard/challenges/data-science-sprint');
+                                    }
+                                }}
+                                className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden group hover:shadow-sm hover:shadow-primary/5 hover:border-primary/20 dark:hover:border-indigo-500/50 transition-all cursor-pointer flex flex-col h-full"
+                            >
                                 <div className={`h-40 bg-gradient-to-br ${challenge.bgGradient} relative overflow-hidden shrink-0`}>
                                     {challenge.image ? (
                                         <div className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-luminosity group-hover:scale-105 transition-transform duration-700" style={{ backgroundImage: challenge.image }}></div>
