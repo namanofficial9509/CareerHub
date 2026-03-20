@@ -1,45 +1,27 @@
 import React, { useState, useRef } from 'react';
+import { getGenerativeModel } from 'firebase/ai';
+import { ai } from '../../lib/firebase';
 
 const ResumeAnalyzer = () => {
-    const [atsScore, setAtsScore] = useState(78);
-    const [skills] = useState({
-        matching: ['React', 'Tailwind CSS', 'JavaScript', 'Agile'],
-        missing: ['TypeScript', 'Jest', 'AWS']
+    const [atsScore, setAtsScore] = useState(0);
+    const [skills, setSkills] = useState({
+        matching: [],
+        missing: []
     });
-    const [jobDescription, setJobDescription] = useState('Software Engineer Intern (Frontend) - Looking for React, Tailwind CSS, and modern JavaScript. Experience with TypeScript and Jest is a plus...');
+    const [analysisOverview, setAnalysisOverview] = useState({
+        keyword_match: 0,
+        impact_score: 0,
+        readability: 0,
+        formatting: 0
+    });
+    const [recruiterInsight, setRecruiterInsight] = useState('');
+    const [improvementSuggestions, setImprovementSuggestions] = useState([]);
+    const [optimizedBullets, setOptimizedBullets] = useState([]);
+
+    const [jobDescription, setJobDescription] = useState('');
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [analysisTriggered, setAnalysisTriggered] = useState(false);
-    const [extraSuggestions, setExtraSuggestions] = useState([]);
-    const [suggestionsIndex, setSuggestionsIndex] = useState(0);
-
-    const suggestionBank = [
-        { current: '"Collaborated with team on backend API development."', ai: 'Designed and deployed 3 RESTful APIs using Node.js, reducing response time by 40%.' },
-        { current: '"Wrote unit tests for the project."', ai: 'Achieved 85% code coverage with 120+ Jest unit tests, reducing post-release bugs by 30%.' },
-        { current: '"Maintained the company database."', ai: 'Optimized 15+ SQL queries on PostgreSQL serving 50K+ records, improving query time by 60%.' }
-    ];
-
-    const handleAnalyze = () => {
-        setIsAnalyzing(true);
-        setTimeout(() => {
-            setIsAnalyzing(false);
-            setAnalysisTriggered(true);
-            setAtsScore(prev => Math.min(100, prev + Math.round(Math.random() * 8 + 2)));
-        }, 2000);
-    };
-
-    const handleGenerateMore = () => {
-        if (suggestionsIndex >= suggestionBank.length) return;
-        setExtraSuggestions(prev => [...prev, suggestionBank[suggestionsIndex]]);
-        setSuggestionsIndex(prev => prev + 1);
-    };
-
-    const handleRecalculate = () => {
-        setIsAnalyzing(true);
-        setTimeout(() => {
-            setIsAnalyzing(false);
-            setAtsScore(prev => Math.min(100, prev + Math.round(Math.random() * 5 + 1)));
-        }, 1500);
-    };
+    const [errorMsg, setErrorMsg] = useState('');
 
     // Upload State
     const [uploadedFile, setUploadedFile] = useState(null);
@@ -58,6 +40,7 @@ const ResumeAnalyzer = () => {
         setUploadedFile(file);
         setIsUploading(true);
         setUploadProgress(0);
+        setErrorMsg('');
 
         // Simulate upload progress
         let progress = 0;
@@ -71,6 +54,133 @@ const ResumeAnalyzer = () => {
                 setUploadProgress(progress);
             }
         }, 400);
+    };
+
+    const convertFileToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+                const base64String = reader.result.split(',')[1];
+                resolve(base64String);
+            };
+            reader.onerror = (error) => reject(error);
+        });
+    };
+
+    const handleAnalyze = async () => {
+        if (!uploadedFile) {
+            setErrorMsg("Please upload a resume (PDF) first.");
+            return;
+        }
+        if (!jobDescription || !jobDescription.trim()) {
+            setErrorMsg("Please provide a target job description.");
+            return;
+        }
+        if (uploadedFile.type !== "application/pdf") {
+            setErrorMsg("Currently, only PDF files are supported for AI Analysis. Please upload a PDF file.");
+            return;
+        }
+
+        setIsAnalyzing(true);
+        setErrorMsg('');
+
+        try {
+            const base64Resume = await convertFileToBase64(uploadedFile);
+            
+            // Initialize Gemini via Firebase
+            const model = getGenerativeModel(ai, { model: 'gemini-1.5-flash', mode: 'prefer_in_cloud' });
+
+            const prompt = `You are an expert ATS (Applicant Tracking System) and professional recruiter.
+
+Analyze the following resume based on the given job description and provide a structured evaluation.
+
+Target Job Description:
+${jobDescription.trim()}
+
+Instructions:
+* Evaluate the resume like a real ATS system and recruiter.
+* Compare the resume with the job description.
+* Be realistic, strict, and practical in scoring.
+* Focus on technical skills, keyword relevance, impact, and formatting.
+* Provide REAL calculated scores (0-100) based on your analysis. DO NOT USE the placeholder numbers from the example format below. Identify actual matching and missing skills. Provide specific recruiter insights and improvement suggestions based ONLY on the provided resume content.
+* CRITICAL: If the provided resume text is completely empty, blank, or contains no meaningful text or work experience, YOU MUST return 0 for all scores, empty arrays for matching_skills, empty arrays for optimized_bullets, and state in the recruiter_insight that the resume appears to be blank or unreadable. DO NOT hallucinate or invent skills or bullet points.
+
+Return ONLY valid JSON in the following exact format without any markdown wrapper (The values below are just placeholders, replace them with your actual analysis results):
+{
+  "ATS_score": [integer 0-100],
+  "analysis_overview": {
+    "keyword_match": [integer 0-100],
+    "impact_score": [integer 0-100],
+    "readability": [integer 0-100],
+    "formatting": [integer 0-100]
+  },
+  "matching_skills": ["Actual matching skill 1", "Actual matching skill 2", "etc"],
+  "missing_skills": ["Actual missing skill 1", "Actual missing skill 2", "etc"],
+  "recruiter_insight": "Actual specific paragraph explaining strengths and weaknesses found in this resume",
+  "improvement_suggestions": [
+    "Actual specific suggestion 1 based on the resume"
+  ],
+  "optimized_bullets": [
+    {
+      "original": "An actual bullet from the user's resume",
+      "improved": "The improved version of that specific bullet"
+    }
+  ]
+}`;
+
+            const result = await model.generateContent({
+                contents: [
+                    {
+                        role: 'user',
+                        parts: [
+                            { text: prompt },
+                            {
+                                inlineData: {
+                                    data: base64Resume,
+                                    mimeType: 'application/pdf'
+                                }
+                            }
+                        ]
+                    }
+                ],
+                generationConfig: {
+                    responseMimeType: "application/json"
+                }
+            });
+
+            const responseText = result.response.text();
+            let parsedData;
+            try {
+                parsedData = JSON.parse(responseText.trim());
+            } catch (jsonErr) {
+                console.warn("AI didn't return strict JSON. Trying to clean it up...", jsonErr, responseText);
+                const cleaned = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
+                parsedData = JSON.parse(cleaned);
+            }
+
+            setAtsScore(parsedData.ATS_score || 0);
+            setAnalysisOverview(parsedData.analysis_overview || { keyword_match: 0, impact_score: 0, readability: 0, formatting: 0 });
+            setSkills({
+                matching: parsedData.matching_skills || [],
+                missing: parsedData.missing_skills || []
+            });
+            setRecruiterInsight(parsedData.recruiter_insight || 'No insights provided.');
+            setImprovementSuggestions(parsedData.improvement_suggestions || []);
+            setOptimizedBullets(parsedData.optimized_bullets || []);
+            
+            setAnalysisTriggered(true);
+
+        } catch (error) {
+            console.error("AI Logic Error:", error);
+            setErrorMsg("Error generating AI analysis. " + (error.message || "Please check your network connection and try again."));
+        } finally {
+            setIsAnalyzing(false);
+        }
+    };
+
+    const handleRecalculate = () => {
+        handleAnalyze();
     };
 
     const onDrop = (e) => {
@@ -113,6 +223,13 @@ const ResumeAnalyzer = () => {
                 </div>
             </div>
 
+            {errorMsg && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[20px]">error</span>
+                    <p className="text-[14px] font-bold">{errorMsg}</p>
+                </div>
+            )}
+
             {/* Top Cards: Upload & Job Description */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8 w-full">
                 {/* Upload Card */}
@@ -121,14 +238,14 @@ const ResumeAnalyzer = () => {
                         <div className="size-10 bg-blue-50 dark:bg-blue-500/10 rounded-xl flex items-center justify-center">
                             <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-[24px] filled">cloud_upload</span>
                         </div>
-                        <h3 className="font-[900] text-[#111827] dark:text-white text-[18px]">Upload Resume</h3>
+                        <h3 className="font-[900] text-[#111827] dark:text-white text-[18px]">Upload Resume (PDF only)</h3>
                     </div>
                     
                     <input 
                         type="file" 
                         ref={fileInputRef} 
                         className="hidden" 
-                        accept=".pdf,.doc,.docx"
+                        accept=".pdf"
                         onChange={(e) => handleFile(e.target.files[0])}
                     />
 
@@ -180,6 +297,8 @@ const ResumeAnalyzer = () => {
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setUploadedFile(null);
+                                            setAnalysisTriggered(false);
+                                            setAtsScore(0);
                                             if (fileInputRef.current) fileInputRef.current.value = '';
                                         }}
                                         className="w-full py-3 text-slate-500 dark:text-slate-400 text-[12px] font-black font-medium hover:text-red-500 dark:hover:text-red-400 transition-colors"
@@ -223,14 +342,14 @@ const ResumeAnalyzer = () => {
                             value={jobDescription}
                             onChange={e => setJobDescription(e.target.value)}
                             className="w-full min-h-[200px] bg-gray-50/50 dark:bg-gray-700/50 rounded-2xl p-6 text-slate-600 dark:text-slate-300 text-[14px] font-medium leading-relaxed resize-none outline-none focus:ring-2 focus:ring-blue-500/30 transition-all"
-                            placeholder="Paste a job description here..."
+                            placeholder="Paste a job description here... (e.g. Software Engineer Intern, looking for React and Node.js)"
                         />
                     </div>
                 </div>
             </div>
 
             {/* Middle Section: Stats Matrix */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-8 w-full">
+            <div className={`grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-8 w-full transition-opacity duration-500 ${analysisTriggered ? 'opacity-100' : 'opacity-50 pointer-events-none'}`}>
                 {/* Score Gauge Card */}
                 <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center text-center w-full transition-colors">
                     <h4 className="text-[13px] font-black text-slate-500 dark:text-slate-400 font-medium mb-10">ATS Compatibility Score</h4>
@@ -246,12 +365,18 @@ const ResumeAnalyzer = () => {
                                 <span className="text-[44px] font-black text-[#111827] dark:text-white leading-none">{atsScore}</span>
                                 <span className="text-slate-500 dark:text-slate-400 font-bold text-[18px]">/100</span>
                             </div>
-                            <span className="mt-2 px-3 py-1 bg-emerald-500 text-white text-[10px] font-black rounded-lg uppercase tracking-wide">Good Match</span>
+                            {atsScore >= 75 ? (
+                                <span className="mt-2 px-3 py-1 bg-emerald-500 text-white text-[10px] font-black rounded-lg uppercase tracking-wide">Good Match</span>
+                            ) : atsScore >= 50 ? (
+                                <span className="mt-2 px-3 py-1 bg-orange-500 text-white text-[10px] font-black rounded-lg uppercase tracking-wide">Needs Work</span>
+                            ) : (
+                                <span className="mt-2 px-3 py-1 bg-red-500 text-white text-[10px] font-black rounded-lg uppercase tracking-wide">Poor Match</span>
+                            )}
                         </div>
                     </div>
 
                     <p className="text-slate-500 dark:text-slate-400 text-[14px] font-medium leading-relaxed max-w-[240px]">
-                        Your resume is well-optimized but could benefit from more specific technical keywords.
+                        {atsScore >= 75 ? "Your resume is well-optimized for this role." : "Your resume could benefit from more specific technical keywords aligned with the JD."}
                     </p>
                 </div>
 
@@ -261,15 +386,15 @@ const ResumeAnalyzer = () => {
                     
                     <div className="space-y-8">
                         {[
-                            { label: 'Keyword Match', score: 82, color: 'bg-blue-600 dark:bg-blue-500' },
-                            { label: 'Impact Factor', score: 65, color: 'bg-orange-500' },
-                            { label: 'Readability', score: 90, color: 'bg-emerald-500' },
-                            { label: 'Formatting', score: 95, color: 'bg-emerald-500' }
+                            { label: 'Keyword Match', score: analysisOverview.keyword_match, color: 'bg-blue-600 dark:bg-blue-500' },
+                            { label: 'Impact Factor', score: analysisOverview.impact_score, color: 'bg-orange-500' },
+                            { label: 'Readability', score: analysisOverview.readability, color: 'bg-emerald-500' },
+                            { label: 'Formatting', score: analysisOverview.formatting, color: 'bg-purple-500' }
                         ].map((stat) => (
                             <div key={stat.label}>
                                 <div className="flex justify-between mb-2">
                                     <span className="text-[14px] font-black text-slate-500 dark:text-slate-400">{stat.label}</span>
-                                    <span className="text-[14px] font-black text-indigo-700 dark:text-blue-400">{stat.score}%</span>
+                                    <span className="text-[14px] font-black text-indigo-700 dark:text-blue-400">{Math.round(stat.score)}%</span>
                                 </div>
                                 <div className="h-2 w-full bg-[#F8FAFC] dark:bg-gray-700 rounded-full overflow-hidden">
                                     <div className={`h-full ${stat.color} transition-all duration-1000`} style={{ width: `${stat.score}%` }}></div>
@@ -287,22 +412,22 @@ const ResumeAnalyzer = () => {
                         <div>
                             <p className="text-[11px] font-black text-slate-500 dark:text-slate-400 font-medium mb-4">Matching Skills</p>
                             <div className="flex flex-wrap gap-2.5">
-                                {skills.matching.map(skill => (
+                                {skills.matching.length > 0 ? skills.matching.map(skill => (
                                     <span key={skill} className="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-[13px] font-black rounded-full border border-emerald-200/50 dark:border-emerald-800/50 shadow-sm shadow-sm dark:shadow-none">
                                         {skill}
                                     </span>
-                                ))}
+                                )) : <span className="text-[13px] text-slate-400">No matching skills found.</span>}
                             </div>
                         </div>
 
                         <div>
                             <p className="text-[11px] font-black text-slate-500 dark:text-slate-400 font-medium mb-4">Missing Keywords</p>
                             <div className="flex flex-wrap gap-2.5">
-                                {skills.missing.map(skill => (
-                                    <span key={skill} className="px-3 py-1.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-[13px] font-bold rounded-full border border-red-100 dark:border-red-800/50">
+                                {skills.missing.length > 0 ? skills.missing.map(skill => (
+                                    <span key={skill} className="px-3 py-1.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-[13px] font-bold rounded-full border border-red-100 dark:border-red-800/50 shadow-sm">
                                         {skill}
                                     </span>
-                                ))}
+                                )) : <span className="text-[13px] text-slate-400">No major missing skills!</span>}
                             </div>
                         </div>
                     </div>
@@ -310,7 +435,7 @@ const ResumeAnalyzer = () => {
             </div>
 
             {/* Bottom Insights Optimizer */}
-            <div className="flex flex-col xl:flex-row gap-8 items-stretch w-full">
+            <div className={`flex flex-col xl:flex-row gap-8 items-stretch w-full transition-opacity duration-500 ${analysisTriggered ? 'opacity-100' : 'opacity-50 pointer-events-none'}`}>
                 {/* Recruiter Insight Card */}
                 <div className="flex-1 xl:w-[40%] bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col h-full w-full min-w-0 transition-colors">
                     <div className="flex items-center gap-3 mb-8">
@@ -322,15 +447,22 @@ const ResumeAnalyzer = () => {
 
                     <div className="flex-1">
                         <p className="text-slate-500 dark:text-slate-400 text-[14px] font-medium leading-relaxed mb-6">
-                            Your "Experience" section lacks <span className="text-slate-900 dark:text-slate-100 font-black italic">quantifiable achievements</span>. Recruiters spend only 6 seconds on average per resume; metrics like percentages and team sizes help you stand out immediately.
+                            {recruiterInsight || "Waiting for upload..."}
                         </p>
 
-                        <div className="bg-blue-50 dark:bg-blue-500/10 rounded-2xl p-6 border-l-4 border-indigo-400 dark:border-indigo-500">
-                            <p className="text-[11px] font-black text-indigo-700 dark:text-blue-400 font-medium mb-2">Quick Fix</p>
-                            <p className="text-gray-700 dark:text-gray-300 text-[14px] font-bold italic leading-relaxed">
-                                "Try rephrasing 'Helped with project' to 'Spearheaded project X leading to a 15% increase in team efficiency'."
-                            </p>
-                        </div>
+                        {improvementSuggestions.length > 0 && (
+                            <div className="bg-blue-50 dark:bg-blue-500/10 rounded-2xl p-6 border-l-4 border-indigo-400 dark:border-indigo-500">
+                                <p className="text-[11px] font-black text-indigo-700 dark:text-blue-400 font-medium mb-3">Improvement Suggestions</p>
+                                <ul className="space-y-2">
+                                    {improvementSuggestions.map((suggestion, idx) => (
+                                        <li key={idx} className="text-gray-700 dark:text-gray-300 text-[13px] font-bold leading-relaxed flex gap-2">
+                                            <span className="text-indigo-400">•</span>
+                                            {suggestion}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -347,41 +479,24 @@ const ResumeAnalyzer = () => {
                     </div>
 
                     <div className="flex-1 space-y-6 mb-8 w-full overflow-x-auto">
-                        {/* Suggestions Group */}
-                        {[
-                            { 
-                                current: '"Worked on the frontend of a web app using React and managed bugs."', 
-                                ai: 'Engineered responsive UI components using React, improving user performance by 25% and resolving 40+ critical bugs.'
-                            },
-                            { 
-                                current: '"Helped my team finish the project ahead of schedule."', 
-                                ai: 'Collaborated in an Agile environment to deliver project milestones 2 weeks ahead of schedule.'
-                            },
-                            ...extraSuggestions
-                        ].map((item, idx) => (
+                        {optimizedBullets.length === 0 && analysisTriggered ? (
+                            <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-6">No specific bullet point improvements identified.</p>
+                        ) : optimizedBullets.map((item, idx) => (
                             <div key={idx} className="flex flex-col md:flex-row gap-4 md:items-center w-full min-w-0">
                                 <div className="flex-1 bg-[#F8FAFC] dark:bg-gray-700/50 rounded-xl p-5 border border-gray-50 dark:border-gray-700 min-w-0">
                                     <p className="text-[10px] text-slate-500 dark:text-slate-400 font-black font-medium mb-2">Current</p>
-                                    <p className="text-slate-500 dark:text-slate-400 text-[13px] font-medium leading-relaxed italic break-words">{item.current}</p>
+                                    <p className="text-slate-500 dark:text-slate-400 text-[13px] font-medium leading-relaxed italic break-words">{item.original}</p>
                                 </div>
                                 <div className="shrink-0 flex items-center justify-center rotate-90 md:rotate-0">
                                     <span className="material-symbols-outlined text-indigo-300 dark:text-indigo-600 text-[20px]">chevron_right</span>
                                 </div>
                                 <div className="flex-1 bg-blue-50 dark:bg-blue-500/10 rounded-xl p-5 border border-indigo-100/50 dark:border-indigo-800/30 min-w-0">
                                     <p className="text-[10px] text-indigo-400 dark:text-indigo-500 font-black font-medium mb-2">AI Suggested</p>
-                                    <p className="text-slate-900 dark:text-slate-100 text-[13px] font-bold leading-relaxed break-words">{item.ai}</p>
+                                    <p className="text-slate-900 dark:text-slate-100 text-[13px] font-bold leading-relaxed break-words">{item.improved}</p>
                                 </div>
                             </div>
                         ))}
                     </div>
-
-                    <button
-                        onClick={handleGenerateMore}
-                        disabled={suggestionsIndex >= suggestionBank.length}
-                        className="w-full py-4 bg-[#F8FAFC] dark:bg-gray-700 rounded-2xl text-[14px] font-bold text-slate-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all border border-gray-100 dark:border-gray-600 shadow-sm mt-auto disabled:opacity-40"
-                    >
-                        {suggestionsIndex >= suggestionBank.length ? 'All suggestions shown ✓' : '+ Generate More Suggestions'}
-                    </button>
                 </div>
             </div>
         </div>
