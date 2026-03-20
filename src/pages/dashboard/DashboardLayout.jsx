@@ -24,10 +24,7 @@ const DashboardLayout = () => {
                     >
                         {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
                     </button>
-                    <div className="flex items-center gap-2 bg-white dark:bg-slate-900 px-4 py-2.5 rounded-full shadow-sm border border-slate-200 dark:border-slate-800 transition-colors">
-                        <div className="size-2 bg-emerald-500 rounded-full"></div>
-                        <span className="text-[13px] font-[900] text-gray-700 dark:text-gray-200">Active Status</span>
-                    </div>
+
                     <button className="relative size-[42px] bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-sm border border-slate-200 dark:border-slate-800 text-gray-400 hover:text-slate-500 dark:text-slate-400 dark:hover:text-white transition-colors">
                         <span className="material-symbols-outlined filled text-[20px]">notifications</span>
                     </button>

@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { db } from '../../lib/firebase';
 import { collection, addDoc, serverTimestamp, query, onSnapshot, orderBy } from 'firebase/firestore';
-import { Download, ExternalLink, Share2, CheckCircle2, TrendingUp, Github, Briefcase, GraduationCap, MapPin, Activity, ShieldCheck, Mail, Calendar, Loader2, Sparkles, Target } from 'lucide-react';
+import { Download, ExternalLink, Share2, CheckCircle2, TrendingUp, Github, Briefcase, GraduationCap, MapPin, Activity, ShieldCheck, Mail, Calendar, Loader2, Sparkles, Target, FlaskConical, X, Plus } from 'lucide-react';
 import { calculateIntelligenceScore, calculateSkillLevel } from '../../lib/intelligenceEngine';
 
 const Profile = () => {
@@ -24,6 +24,12 @@ const Profile = () => {
         liveLink: '',
         academics: ''
     });
+    const [activeCategory, setActiveCategory] = useState(null); // 'academics', 'research', 'projects', 'experience'
+    
+    // Form states for other categories
+    const [academicsForm, setAcademicsForm] = useState({ semester: '', sgpa: '', year: '', subjects: '' });
+    const [researchForm, setResearchForm] = useState({ title: '', journal: '', status: 'Published', publishedDate: '' });
+    const [experienceForm, setExperienceForm] = useState({ role: '', company: '', type: 'Internship', startDate: '', endDate: '' });
 
     const handleProjectSubmit = async (e) => {
         e.preventDefault();
@@ -54,10 +60,59 @@ const Profile = () => {
                 liveLink: '',
                 academics: ''
             });
+            setActiveCategory(null);
             alert('Project added successfully!');
         } catch (error) {
             console.error("Error adding project:", error);
             alert('Failed to add project: ' + error.message);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleCategorySubmit = async (e, type) => {
+        e.preventDefault();
+        if (!user) return;
+        setIsSubmitting(true);
+        try {
+            let formData = {};
+            let signalKey = '';
+            
+            if (type === 'academics') {
+                formData = academicsForm;
+                signalKey = 'academics';
+                await addDoc(collection(db, 'users', user.uid, 'academics'), {
+                    ...formData,
+                    createdAt: serverTimestamp()
+                });
+                // Update metrics for readiness score
+                await updateIntelligenceSignal('metrics.cgpa', formData.sgpa);
+            } else if (type === 'research') {
+                formData = researchForm;
+                signalKey = 'research_papers';
+                await addDoc(collection(db, 'users', user.uid, 'research_papers'), {
+                    ...formData,
+                    createdAt: serverTimestamp()
+                });
+                await updateIntelligenceSignal('metrics.research_papers', 1, true);
+            } else if (type === 'experience') {
+                formData = experienceForm;
+                signalKey = 'experiences';
+                await addDoc(collection(db, 'users', user.uid, 'experiences'), {
+                    ...formData,
+                    createdAt: serverTimestamp()
+                });
+                await updateIntelligenceSignal('metrics.total_experience', 1, true);
+            }
+
+            setActiveCategory(null);
+            setAcademicsForm({ semester: '', sgpa: '', year: '', subjects: '' });
+            setResearchForm({ title: '', journal: '', status: 'Published', publishedDate: '' });
+            setExperienceForm({ role: '', company: '', type: 'Internship', startDate: '', endDate: '' });
+            alert(`${type.charAt(0).toUpperCase() + type.slice(1)} added successfully!`);
+        } catch (error) {
+            console.error(`Error adding ${type}:`, error);
+            alert(`Failed to add ${type}`);
         } finally {
             setIsSubmitting(false);
         }
@@ -952,200 +1007,276 @@ const Profile = () => {
                         )}
                     </form>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         
-                        {/* Box 1: Academics */}
-                        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-shadow">
-                            <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
-                                <div className="flex items-center gap-3">
-                                    <div className="size-10 rounded-xl bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-800/30 flex items-center justify-center text-orange-600">
-                                        <GraduationCap className="size-5" />
+                        {!activeCategory ? (
+                            <>
+                                {/* Box 1: Academics */}
+                                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-shadow">
+                                    <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
+                                        <div className="flex items-center gap-3">
+                                            <div className="size-10 rounded-xl bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-800/30 flex items-center justify-center text-orange-600">
+                                                <GraduationCap className="size-5" />
+                                            </div>
+                                            <h3 className="text-[16px] font-bold text-slate-900 dark:text-white">Academics</h3>
+                                        </div>
                                     </div>
-                                    <h3 className="text-[16px] font-bold text-slate-900 dark:text-white">Academics</h3>
+                                    <div className="p-6 flex-1 flex flex-col justify-between">
+                                        <p className="text-[14px] text-slate-600 dark:text-slate-400 mb-6 font-medium leading-relaxed">
+                                            Log semester GPAs, relevant coursework, awards, and extracurricular leadership roles.
+                                        </p>
+                                        <button 
+                                            onClick={() => setActiveCategory('academics')}
+                                            className="w-full bg-white dark:bg-slate-900 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-orange-500 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/10 text-slate-600 dark:text-slate-400 font-medium py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-[14px]"
+                                        >
+                                            <span className="material-symbols-outlined text-[20px]">add</span> Add Record
+                                        </button>
+                                    </div>
                                 </div>
-                                <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[11px] font-bold px-2.5 py-1 rounded-md">6 Entries</span>
-                            </div>
-                            <div className="p-6 flex-1 flex flex-col justify-between">
-                                <p className="text-[14px] text-slate-600 dark:text-slate-400 mb-6 font-medium leading-relaxed">
-                                    Log semester GPAs, relevant coursework, awards, and extracurricular leadership roles.
-                                </p>
-                                <button 
-                                    onClick={() => document.getElementById('project-form')?.scrollIntoView({ behavior: 'smooth' })}
-                                    className="w-full bg-white dark:bg-slate-900 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-orange-500 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/10 text-slate-600 dark:text-slate-400 font-medium py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-[14px]"
-                                >
-                                    <span className="material-symbols-outlined text-[20px]">add</span> Add Semester Record
-                                </button>
-                            </div>
-                        </div>
 
-                        {/* Box 2: Projects */}
-                        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-shadow relative">
-                            {/* AI Glow Effect */}
-                            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-purple-500 to-blue-500"></div>
-                            
-                            <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
-                                <div className="flex items-center gap-3">
-                                    <div className="size-10 rounded-xl bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800/30 flex items-center justify-center text-purple-600">
-                                        <Github className="size-5" />
+                                {/* Box 2: Research */}
+                                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-shadow">
+                                    <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
+                                        <div className="flex items-center gap-3">
+                                            <div className="size-10 rounded-xl bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800/30 flex items-center justify-center text-purple-600">
+                                                <FlaskConical className="size-5" />
+                                            </div>
+                                            <h3 className="text-[16px] font-bold text-slate-900 dark:text-white">Research</h3>
+                                        </div>
                                     </div>
-                                    <h3 className="text-[16px] font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                        Projects <span className="text-[10px] bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-2 py-0.5 rounded uppercase tracking-wider font-bold">AI Active</span>
-                                    </h3>
+                                    <div className="p-6 flex-1 flex flex-col justify-between">
+                                        <p className="text-[14px] text-slate-600 dark:text-slate-400 mb-6 font-medium leading-relaxed">
+                                            Log your research papers, publications, and conference presentations.
+                                        </p>
+                                        <button 
+                                            onClick={() => setActiveCategory('research')}
+                                            className="w-full bg-white dark:bg-slate-900 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-purple-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/10 text-slate-600 dark:text-slate-400 font-medium py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-[14px]"
+                                        >
+                                            <span className="material-symbols-outlined text-[20px]">add</span> Add Paper
+                                        </button>
+                                    </div>
                                 </div>
-                                <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[11px] font-bold px-2.5 py-1 rounded-md">2 Entries</span>
-                            </div>
-                            <div className="p-6 flex-1 flex flex-col justify-between">
-                                <p className="text-[14px] text-slate-600 dark:text-slate-400 mb-6 font-medium leading-relaxed">
-                                    Paste a GitHub repo link and let our AI extract the tech stack and formulate impact bullet points.
-                                </p>
-                                <button 
-                                    onClick={() => document.getElementById('project-form')?.scrollIntoView({ behavior: 'smooth' })}
-                                    className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 text-[14px]"
-                                >
-                                    <span className="material-symbols-outlined text-[20px] font-light">magic_button</span> Auto-import Project
-                                </button>
-                            </div>
-                        </div>
 
-                        {/* Box 3: Experience */}
-                        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-shadow">
-                            <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
-                                <div className="flex items-center gap-3">
-                                    <div className="size-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30 flex items-center justify-center text-blue-600">
-                                        <Briefcase className="size-5" />
+                                {/* Box 3: Projects */}
+                                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-shadow relative">
+                                    <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+                                    <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
+                                        <div className="flex items-center gap-3">
+                                            <div className="size-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/30 flex items-center justify-center text-indigo-600">
+                                                <Github className="size-5" />
+                                            </div>
+                                            <h3 className="text-[16px] font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                                Projects <span className="text-[10px] bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-2 py-0.5 rounded uppercase tracking-wider font-bold">AI Active</span>
+                                            </h3>
+                                        </div>
                                     </div>
-                                    <h3 className="text-[16px] font-bold text-slate-900 dark:text-white">Experience</h3>
+                                    <div className="p-6 flex-1 flex flex-col justify-between">
+                                        <p className="text-[14px] text-slate-600 dark:text-slate-400 mb-6 font-medium leading-relaxed">
+                                            Paste a GitHub repo link and let our AI extract the tech stack and formulate impact bullet points.
+                                        </p>
+                                        <button 
+                                            onClick={() => setActiveCategory('projects')}
+                                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 text-[14px]"
+                                        >
+                                            <span className="material-symbols-outlined text-[20px] font-light">magic_button</span> Auto-import
+                                        </button>
+                                    </div>
                                 </div>
-                                <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[11px] font-bold px-2.5 py-1 rounded-md">2 Entries</span>
-                            </div>
-                            <div className="p-6 flex-1 flex flex-col justify-between">
-                                <p className="text-[14px] text-slate-600 dark:text-slate-400 mb-6 font-medium leading-relaxed">
-                                    Add your internships, contract roles, and full-time positions. Answer a few questions about your impact.
-                                </p>
-                                <button 
-                                    onClick={() => document.getElementById('project-form')?.scrollIntoView({ behavior: 'smooth' })}
-                                    className="w-full bg-white dark:bg-slate-900 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/10 text-slate-600 dark:text-slate-400 font-medium py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-[14px]"
-                                >
-                                    <span className="material-symbols-outlined text-[20px]">add</span> Add Experience
-                                </button>
-                            </div>
-                        </div>
+
+                                {/* Box 4: Experience */}
+                                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-shadow">
+                                    <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
+                                        <div className="flex items-center gap-3">
+                                            <div className="size-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30 flex items-center justify-center text-blue-600">
+                                                <Briefcase className="size-5" />
+                                            </div>
+                                            <h3 className="text-[16px] font-bold text-slate-900 dark:text-white">Experience</h3>
+                                        </div>
+                                    </div>
+                                    <div className="p-6 flex-1 flex flex-col justify-between">
+                                        <p className="text-[14px] text-slate-600 dark:text-slate-400 mb-6 font-medium leading-relaxed">
+                                            Add your internships, contract roles, and full-time positions. Answer a few questions about your impact.
+                                        </p>
+                                        <button 
+                                            onClick={() => setActiveCategory('experience')}
+                                            className="w-full bg-white dark:bg-slate-900 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/10 text-slate-600 dark:text-slate-400 font-medium py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-[14px]"
+                                        >
+                                            <span className="material-symbols-outlined text-[20px]">add</span> Add Experience
+                                        </button>
+                                    </div>
+                                </div>
+                            </>
+                        ) : null}
 
                     </div>
 
-                    {/* Interactive Skeleton View for adding a Project (Open State) */}
-                    <form 
-                        id="project-form"
-                        onSubmit={handleProjectSubmit} 
-                        className="bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 border border-purple-200 dark:border-purple-900/50 shadow-sm relative mt-4"
-                    >
-                        <div className="flex justify-between items-start mb-6">
-                            <div>
+                    {/* Conditional Forms */}
+                    {activeCategory === 'projects' && (
+                        <form id="project-form" onSubmit={handleProjectSubmit} className="bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 border border-purple-200 dark:border-purple-900/50 shadow-sm relative mt-4 animate-in fade-in slide-in-from-top-4">
+                            <button type="button" onClick={() => setActiveCategory(null)} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 transition-colors"><X className="size-5" /></button>
+                            <div className="mb-6">
                                 <h3 className="text-[18px] font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                     <span className="material-symbols-outlined text-purple-600 text-[20px]">auto_awesome</span> Add New Project
                                 </h3>
                                 <p className="text-[14px] text-slate-500 mt-1">Provide your project details. This will auto-generate your portfolio.</p>
                             </div>
-                        </div>
-
-                        <div className="space-y-5">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                <div>
-                                    <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Project Name <span className="text-red-500">*</span></label>
-                                    <input 
-                                        type="text" 
-                                        required
-                                        value={projectForm.title}
-                                        onChange={(e) => setProjectForm(prev => ({...prev, title: e.target.value}))}
-                                        placeholder="e.g. Distributed Task Queue" 
-                                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50" 
-                                    />
+                            <div className="space-y-5">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <div>
+                                        <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Project Name <span className="text-red-500">*</span></label>
+                                        <input type="text" required value={projectForm.title} onChange={(e) => setProjectForm(prev => ({...prev, title: e.target.value}))} placeholder="e.g. Distributed Task Queue" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Academics / Category</label>
+                                        <input type="text" value={projectForm.academics} onChange={(e) => setProjectForm(prev => ({...prev, academics: e.target.value}))} placeholder="e.g. B.Tech Final Year" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50" />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <div>
+                                        <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">GitHub Link</label>
+                                        <input type="url" value={projectForm.githubLink} onChange={(e) => setProjectForm(prev => ({...prev, githubLink: e.target.value}))} placeholder="https://github.com/..." className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Live Link</label>
+                                        <input type="url" value={projectForm.liveLink} onChange={(e) => setProjectForm(prev => ({...prev, liveLink: e.target.value}))} placeholder="https://..." className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50" />
+                                    </div>
                                 </div>
                                 <div>
-                                    <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Academics / Category</label>
-                                    <input 
-                                        type="text" 
-                                        value={projectForm.academics}
-                                        onChange={(e) => setProjectForm(prev => ({...prev, academics: e.target.value}))}
-                                        placeholder="e.g. B.Tech Final Year" 
-                                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50" 
-                                    />
+                                    <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Description <span className="text-red-500">*</span></label>
+                                    <textarea required rows={4} value={projectForm.description} onChange={(e) => setProjectForm(prev => ({...prev, description: e.target.value}))} placeholder="Briefly describe your project and your impact..." className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 resize-none" />
+                                </div>
+                                <div className="flex justify-end gap-3 pt-2">
+                                    <button type="button" onClick={() => setActiveCategory(null)} className="px-6 py-2.5 text-[14px] font-bold text-slate-500 hover:bg-slate-50 rounded-xl">Clear</button>
+                                    <button type="submit" disabled={isSubmitting} className="bg-purple-600 hover:bg-purple-700 text-white font-bold px-8 py-2.5 rounded-xl text-[14px] flex items-center gap-2 shadow-md">
+                                        {isSubmitting ? <><Loader2 className="size-4 animate-spin" /> Adding...</> : <><Plus className="size-4" /> Add to Portfolio</>}
+                                    </button>
                                 </div>
                             </div>
+                        </form>
+                    )}
 
-                            <div>
-                                <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Tech Stack</label>
-                                <input 
-                                    type="text" 
-                                    value={projectForm.techStack}
-                                    onChange={(e) => setProjectForm(prev => ({...prev, techStack: e.target.value}))}
-                                    placeholder="e.g. React, Node.js, Firebase" 
-                                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50" 
-                                />
+                    {activeCategory === 'academics' && (
+                        <form onSubmit={(e) => handleCategorySubmit(e, 'academics')} className="bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 border border-orange-200 dark:border-orange-900/50 shadow-sm relative mt-4 animate-in fade-in slide-in-from-top-4">
+                            <button type="button" onClick={() => setActiveCategory(null)} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 transition-colors"><X className="size-5" /></button>
+                            <div className="mb-6">
+                                <h3 className="text-[18px] font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    <GraduationCap className="text-orange-600 size-5" /> Add Academic Record
+                                </h3>
+                                <p className="text-[14px] text-slate-500 mt-1">Log your semester performance and key subjects.</p>
                             </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div className="space-y-5">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                    <div>
+                                        <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Semester *</label>
+                                        <select required value={academicsForm.semester} onChange={(e) => setAcademicsForm(prev => ({...prev, semester: e.target.value}))} className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white">
+                                            <option value="">Select</option>
+                                            {[1,2,3,4,5,6,7,8].map(n => <option key={n} value={`Semester ${n}`}>Semester {n}</option>)}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">SGPA *</label>
+                                        <input type="number" step="0.01" required value={academicsForm.sgpa} onChange={(e) => setAcademicsForm(prev => ({...prev, sgpa: e.target.value}))} placeholder="e.g. 9.42" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Year</label>
+                                        <input type="text" value={academicsForm.year} onChange={(e) => setAcademicsForm(prev => ({...prev, year: e.target.value}))} placeholder="e.g. 2023-24" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white" />
+                                    </div>
+                                </div>
                                 <div>
-                                    <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">GitHub Link</label>
-                                    <input 
-                                        type="url" 
-                                        value={projectForm.githubLink}
-                                        onChange={(e) => setProjectForm(prev => ({...prev, githubLink: e.target.value}))}
-                                        placeholder="https://github.com/..." 
-                                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50" 
-                                    />
+                                    <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Relevant Subjects (Comma separated)</label>
+                                    <input type="text" value={academicsForm.subjects} onChange={(e) => setAcademicsForm(prev => ({...prev, subjects: e.target.value}))} placeholder="e.g. DSA, OS, DBMS" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white" />
                                 </div>
+                                <div className="flex justify-end gap-3 pt-2">
+                                    <button type="button" onClick={() => setActiveCategory(null)} className="px-6 py-2.5 text-[14px] font-bold text-slate-500 rounded-xl">Cancel</button>
+                                    <button type="submit" disabled={isSubmitting} className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-8 py-2.5 rounded-xl text-[14px] shadow-md flex items-center gap-2">
+                                        {isSubmitting ? <><Loader2 className="size-4 animate-spin" /> Saving...</> : 'Save Record'}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    )}
+
+                    {activeCategory === 'research' && (
+                        <form onSubmit={(e) => handleCategorySubmit(e, 'research')} className="bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 border border-purple-200 dark:border-purple-900/50 shadow-sm relative mt-4 animate-in fade-in slide-in-from-top-4">
+                            <button type="button" onClick={() => setActiveCategory(null)} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 transition-colors"><X className="size-5" /></button>
+                            <div className="mb-6">
+                                <h3 className="text-[18px] font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    <FlaskConical className="text-purple-600 size-5" /> Add Research Paper
+                                </h3>
+                                <p className="text-[14px] text-slate-500 mt-1">Log your publications and research achievements.</p>
+                            </div>
+                            <div className="space-y-5">
                                 <div>
-                                    <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Live Link</label>
-                                    <input 
-                                        type="url" 
-                                        value={projectForm.liveLink}
-                                        onChange={(e) => setProjectForm(prev => ({...prev, liveLink: e.target.value}))}
-                                        placeholder="https://..." 
-                                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50" 
-                                    />
+                                    <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Paper Title *</label>
+                                    <input type="text" required value={researchForm.title} onChange={(e) => setResearchForm(prev => ({...prev, title: e.target.value}))} placeholder="e.g. AI Optimizations in Edge Computing" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white" />
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <div>
+                                        <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Journal / Conference</label>
+                                        <input type="text" value={researchForm.journal} onChange={(e) => setResearchForm(prev => ({...prev, journal: e.target.value}))} placeholder="e.g. IEEE 2024" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Published Date</label>
+                                        <input type="month" value={researchForm.publishedDate} onChange={(e) => setResearchForm(prev => ({...prev, publishedDate: e.target.value}))} className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white" />
+                                    </div>
+                                </div>
+                                <div className="flex justify-end gap-3 pt-2">
+                                    <button type="button" onClick={() => setActiveCategory(null)} className="px-6 py-2.5 text-[14px] font-bold text-slate-500 rounded-xl">Cancel</button>
+                                    <button type="submit" disabled={isSubmitting} className="bg-purple-600 hover:bg-purple-700 text-white font-bold px-8 py-2.5 rounded-xl text-[14px] shadow-md flex items-center gap-2">
+                                        {isSubmitting ? <><Loader2 className="size-4 animate-spin" /> Saving...</> : 'Save Paper'}
+                                    </button>
                                 </div>
                             </div>
+                        </form>
+                    )}
 
-                            <div>
-                                <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Description <span className="text-red-500">*</span></label>
-                                <textarea 
-                                    rows="3" 
-                                    required
-                                    value={projectForm.description}
-                                    onChange={(e) => setProjectForm(prev => ({...prev, description: e.target.value}))}
-                                    placeholder="Briefly describe your project and your impact..." 
-                                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-[14px] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 resize-none"
-                                ></textarea>
+                    {activeCategory === 'experience' && (
+                        <form onSubmit={(e) => handleCategorySubmit(e, 'experience')} className="bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 border border-blue-200 dark:border-blue-900/50 shadow-sm relative mt-4 animate-in fade-in slide-in-from-top-4">
+                            <button type="button" onClick={() => setActiveCategory(null)} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 transition-colors"><X className="size-5" /></button>
+                            <div className="mb-6">
+                                <h3 className="text-[18px] font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    <Briefcase className="text-blue-600 size-5" /> Add Professional Experience
+                                </h3>
+                                <p className="text-[14px] text-slate-500 mt-1">Log your internships, jobs, and contract roles.</p>
                             </div>
-
-                            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
-                                <button 
-                                    type="button"
-                                    onClick={() => setProjectForm({title: '', description: '', techStack: '', githubLink: '', liveLink: '', academics: ''})}
-                                    className="px-5 py-2.5 text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors text-[14px]"
-                                >
-                                    Clear
-                                </button>
-                                <button 
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-xl transition-colors shadow-sm text-[14px] flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    {isSubmitting ? (
-                                        <>
-                                            <Loader2 className="size-4 animate-spin" /> Adding...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <span className="material-symbols-outlined text-[18px]">add</span> Add to Portfolio
-                                        </>
-                                    )}
-                                </button>
+                            <div className="space-y-5">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <div>
+                                        <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Role *</label>
+                                        <input type="text" required value={experienceForm.role} onChange={(e) => setExperienceForm(prev => ({...prev, role: e.target.value}))} placeholder="e.g. SDE Intern" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Company *</label>
+                                        <input type="text" required value={experienceForm.company} onChange={(e) => setExperienceForm(prev => ({...prev, company: e.target.value}))} placeholder="e.g. Google" className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white" />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                    <div>
+                                        <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Type</label>
+                                        <select value={experienceForm.type} onChange={(e) => setExperienceForm(prev => ({...prev, type: e.target.value}))} className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white">
+                                            <option>Internship</option>
+                                            <option>Full-time</option>
+                                            <option>Contract</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">Start Month</label>
+                                        <input type="month" value={experienceForm.startDate} onChange={(e) => setExperienceForm(prev => ({...prev, startDate: e.target.value}))} className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-1.5">End Month (optional)</label>
+                                        <input type="month" value={experienceForm.endDate} onChange={(e) => setExperienceForm(prev => ({...prev, endDate: e.target.value}))} className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[14px] text-slate-900 dark:text-white" />
+                                    </div>
+                                </div>
+                                <div className="flex justify-end gap-3 pt-2">
+                                    <button type="button" onClick={() => setActiveCategory(null)} className="px-6 py-2.5 text-[14px] font-bold text-slate-500 rounded-xl">Cancel</button>
+                                    <button type="submit" disabled={isSubmitting} className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-2.5 rounded-xl text-[14px] shadow-md flex items-center gap-2">
+                                        {isSubmitting ? <><Loader2 className="size-4 animate-spin" /> Saving...</> : 'Save Experience'}
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    </form>
-
+                        </form>
+                    )}
                 </div>
             )}
 

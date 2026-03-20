@@ -290,7 +290,7 @@ const Challenges = () => {
                             <div className="absolute inset-0 bg-yellow-400 scale-150 blur-xl opacity-20 -z-0"></div>
                         </div>
 
-                        <h4 className="font-bold text-slate-900 dark:text-slate-100 text-lg">Mark Mukerburg</h4>
+                        <h4 className="font-bold text-slate-900 dark:text-slate-100 text-lg">Manish Sharma</h4>
                         <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mt-1 mb-6">Winner: Python Data Sprint #42</p>
 
                         <button className="w-full bg-[#EFEFFC] dark:bg-blue-500/10 hover:bg-blue-600 hover:text-white dark:hover:bg-indigo-600 transition-colors text-blue-600 dark:text-blue-400 font-bold py-3 rounded-xl flex items-center justify-center gap-2 text-sm shadow-sm group/btn">
@@ -312,9 +312,9 @@ const Challenges = () => {
                         <div className="flex items-center justify-between p-3 rounded-2xl hover:bg-[#F8FAFC] dark:hover:bg-gray-700/50 transition-colors border border-transparent hover:border-gray-100 dark:hover:border-gray-600 -mx-3 cursor-pointer">
                             <div className="flex items-center gap-3">
                                 <span className="text-gray-400 font-bold text-sm w-5 text-center">01</span>
-                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=f3f4f6" alt="Alex" className="size-10 rounded-full border border-gray-200 dark:border-gray-600" />
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Arjun&backgroundColor=f3f4f6" alt="Arjun" className="size-10 rounded-full border border-gray-200 dark:border-gray-600" />
                                 <div>
-                                    <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm leading-tight">Alex Chen</h4>
+                                    <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm leading-tight">Arjun Singh</h4>
                                     <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5">12 WINS</p>
                                 </div>
                             </div>
@@ -327,9 +327,9 @@ const Challenges = () => {
                         <div className="flex items-center justify-between p-3 rounded-2xl hover:bg-[#F8FAFC] dark:hover:bg-gray-700/50 transition-colors border border-transparent hover:border-gray-100 dark:hover:border-gray-600 -mx-3 cursor-pointer">
                             <div className="flex items-center gap-3">
                                 <span className="text-gray-400 font-bold text-sm w-5 text-center">02</span>
-                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Mark2&backgroundColor=e5e7eb" alt="Mark" className="size-10 rounded-full border border-gray-200 dark:border-gray-600" />
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Madhav&backgroundColor=e5e7eb" alt="Madhav" className="size-10 rounded-full border border-gray-200 dark:border-gray-600" />
                                 <div>
-                                    <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm leading-tight">Mark Z.</h4>
+                                    <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm leading-tight">Madhav Mishra</h4>
                                     <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5">9 WINS</p>
                                 </div>
                             </div>
@@ -342,9 +342,9 @@ const Challenges = () => {
                         <div className="flex items-center justify-between p-3 rounded-2xl hover:bg-[#F8FAFC] dark:hover:bg-gray-700/50 transition-colors border border-transparent hover:border-gray-100 dark:hover:border-gray-600 -mx-3 cursor-pointer">
                             <div className="flex items-center gap-3">
                                 <span className="text-gray-400 font-bold text-sm w-5 text-center">03</span>
-                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah&backgroundColor=bfdbfe" alt="Sarah" className="size-10 rounded-full border border-gray-200 dark:border-gray-600" />
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Simran&backgroundColor=bfdbfe" alt="Simran" className="size-10 rounded-full border border-gray-200 dark:border-gray-600" />
                                 <div>
-                                    <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm leading-tight">Sarah L.</h4>
+                                    <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm leading-tight">Simran Kaur</h4>
                                     <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5">7 WINS</p>
                                 </div>
                             </div>

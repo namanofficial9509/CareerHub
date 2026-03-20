@@ -21,10 +21,11 @@ export const calculateIntelligenceScore = (userData) => {
     
     const problemsScore = Math.min((metrics.leetcode_solved || 0) * 2, 400); // 400 max
     const projectScore = Math.min((metrics.total_projects || 0) * 100, 300); // 300 max
-    const streakScore = Math.min((metrics.streak || 0) * 10, 100); // 100 max
-    const communityScore = Math.min((metrics.hackathon_wins || 0) * 50, 200); // 200 max
+    const researchScore = Math.min((metrics.research_papers || 0) * 150, 300); // 300 max
+    const experienceScore = Math.min((metrics.total_experience || 0) * 100, 200); // 200 max
+    const academicsScore = Math.min(parseFloat(metrics.cgpa || 0) * 10, 100); // 100 max
     
-    const total = problemsScore + projectScore + streakScore + communityScore;
+    const total = problemsScore + projectScore + researchScore + experienceScore + academicsScore;
     return Math.min(total, 1000); // Max score 1000
 };
 
@@ -48,6 +49,9 @@ Branch: ${identity.branch || 'N/A'}
 Coding & Project Stats:
 - LeetCode Solved: ${metrics.leetcode_solved || 0}
 - Original Projects Built: ${metrics.total_projects || 0}
+- Research Papers: ${metrics.research_papers || 0}
+- Total Experience: ${metrics.total_experience || 0}
+- Academic Performance (GPA): ${metrics.cgpa || 'N/A'}
 - GitHub Stars: ${metrics.github_stars || 0}
 - Top Languages (from GitHub): ${metrics.top_languages?.join(', ') || 'Unknown'}
 
