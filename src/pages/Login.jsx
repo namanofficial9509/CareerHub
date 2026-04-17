@@ -78,6 +78,12 @@ const Login = () => {
                         <button className="flex min-w-[120px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-11 px-6 bg-white/5 border border-white/10 text-white text-sm font-bold hover:bg-white/10 transition-all backdrop-blur-md">
                             <span>Universities</span>
                         </button>
+                        <button 
+                            onClick={() => navigate('/recruiter')}
+                            className="flex min-w-[140px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-11 px-6 bg-white text-background-dark text-sm font-black hover:bg-indigo-50 transition-all shadow-xl shadow-white/5"
+                        >
+                            <span>Sign in as Recruiter</span>
+                        </button>
                         <button className="flex min-w-[120px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-11 px-6 bg-white text-background-dark text-sm font-black hover:bg-indigo-50 transition-all shadow-xl shadow-white/5">
                             <span>About Hub</span>
                         </button>
